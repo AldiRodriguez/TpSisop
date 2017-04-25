@@ -35,19 +35,20 @@ fi
 setearAmbiente(){
 
 	#seteo variables de ambiente leyendo el archivo de configuracion
-	export DIRBIN=`grep DIRBIN $ARCHCONF | cut -d'/' -f5`
-	export DIRMA=`grep DIRMA $ARCHCONF | cut -d'/' -f5`
-	export DIRNOV=`grep DIRNOV $ARCHCONF | cut -d'/' -f5`
-	export DIRACE=`grep DIRACE $ARCHCONF | cut -d '/' -f5`
-	export DIRREJ=`grep DIRREJ $ARCHCONF | cut -d'/' -f5`
-	export DIRVAL=`grep DIRVAL $ARCHCONF | cut -d'/' -f5`
-	export DIRREP=`grep DIRREP $ARCHCONF | cut -d'/' -f5`
-	export DIRLOG=`grep DIRLOG $ARCHCONF | cut -d'/' -f5`
+	export DIRBIN=`grep DIRBIN $ARCHCONF | cut -d'=' -f2`
+  #echo "$DIRBIN"
+	export DIRMA=`grep DIRMA $ARCHCONF | cut -d'=' -f2`
+	export DIRNOV=`grep DIRNOV $ARCHCONF | cut -d'=' -f2`
+	export DIRACE=`grep DIRACE $ARCHCONF | cut -d '=' -f2`
+	export DIRREJ=`grep DIRREJ $ARCHCONF | cut -d'=' -f2`
+	export DIRVAL=`grep DIRVAL $ARCHCONF | cut -d'=' -f2`
+	export DIRREP=`grep DIRREP $ARCHCONF | cut -d'=' -f2`
+	export DIRLOG=`grep DIRLOG $ARCHCONF | cut -d'=' -f2`
 
 }
 
 detectarExistenciaArchivos(){
-  cd "$GRUPO"
+  cd "$DIRBIN"
 	archivosBin=("inicializador" "demonio")
   for archivo in ${archivosBin[@]} ; do
    	if [ `ls -l $DIRBIN | grep $archivo -c` -ne 1 ]; then
@@ -57,6 +58,7 @@ detectarExistenciaArchivos(){
       echo -e "$WHEN - $WHO - inicializador - Error- Falta $archivo" >> $LOGFILE
       exit 1
     fi
+    echo "Se encontro $archivo"
   done
 
 	archivo_maestro=("maestro.csv")
@@ -67,6 +69,7 @@ detectarExistenciaArchivos(){
     echo -e "$WHEN - $WHO - inicializador - Error- Falta $archivo_maestro" >> $LOGFILE
     exit 1
   fi
+  echo "Se encontro $archivo_maestro"
 
   archivosNov=("nov1.csv" "nov2.csv")
   for file in ${archivosNov[@]} ; do
@@ -77,6 +80,7 @@ detectarExistenciaArchivos(){
       echo -e "$WHEN - $WHO - inicializador - Error- Falta $file" >> $LOGFILE
       exit 1
     fi
+    echo "Se encontro $file"
   done
 
   archivo_log_inic=("ini.log")
@@ -87,11 +91,13 @@ detectarExistenciaArchivos(){
     echo -e "$WHEN - $WHO - inicializador - Error- Falta $archivo_log_inic" >> $LOGFILE
     exit 1
   fi
+  echo "Se encontro $archivo_log_inic"
 }
 
 verificarPermisos(){
+  DIRBIN=${DIRBIN::-1}
 
- 	ejecutables=("$DIRBIN/inicializador" "$DIRBBIN/demonio")
+ 	ejecutables=("$DIRBIN/inicializador.sh" "$DIRBIN/demonio.sh")
 	for arch in ${ejecutables[@]} ; do
    		 if [ ! -x "$arch" ] || [ ! -r "$arch" ] ; then
       		chmod +xr "$arch"
@@ -106,23 +112,26 @@ verificarPermisos(){
           WHO=$USER
           echo -e "$WHEN - $WHO - inicializador - Info - Seteados correctamente los permisos del archivo $arch" >> $LOGFILE
     	fi
+      echo "$arch ya tenia los permisos x y r"
 	done
 
+  DIRMA=${DIRMA::-1}
 	maestro=("$DIRMA/maestro.csv")
 
-	if [ ! -r "$archivo_maestro" ] ; then
-   		chmod +r "$archivo_maestro"
-    	if [ ! -r "$archivo_maestro" ] ; then
-            echo "No se puede cambiar los permisos de $archivo_maestro."
+	if [ ! -r "$maestro" ] ; then
+   		chmod +r "$maestro"
+    	if [ ! -r "$maestro" ] ; then
+            echo "No se puede cambiar los permisos de $maestro."
             WHEN=`date "+%Y/%m/%d %T"`
             WHO=$USER
-            echo -e "$WHEN - $WHO - inicializador - Error - No se puede cambiar los permisos del archivo $archivo_maestro" >> $LOGFILE
+            echo -e "$WHEN - $WHO - inicializador - Error - No se puede cambiar los permisos del archivo $maestro" >> $LOGFILE
             return 1
     	fi
       WHEN=`date "+%Y/%m/%d %T"`
       WHO=$USER
-      echo -e "$WHEN - $WHO - inicializador - Info - Seteados correctamente los permisos del archivo $archivo_maestro" >> $LOGFILE
-    fi
+      echo -e "$WHEN - $WHO - inicializador - Info - Seteados correctamente los permisos del archivo $maestro" >> $LOGFILE
+  fi
+  echo "Los permisos del $maestro estan seteados ok"
 }
 
 elegirOpcion(){
@@ -186,3 +195,4 @@ echo -e "$WHEN - $WHO - inicializador - Info - Ha finalizado la inicializacion" 
 elegirOpcion
 
 #############################################################################
+
