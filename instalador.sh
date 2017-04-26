@@ -86,6 +86,17 @@ chequeoPerl(){
 
 }
 
+borrarDirectorios(){
+	rm -r "$DIRBIN" 
+	rm -r "$DIRMA"
+	rm -r "$DIRNOV"
+	rm -r "$DIRACE"
+	rm -r "$DIRREJ"
+	rm -r "$DIRVAL"
+	rm -r "$DIRREP"
+	rm -r "$DIRLOG"
+}
+
 definirNombresDirectorios(){
 
 	echo "A continuacion, ingrese los nombres de los directorios sin '/'."
@@ -104,13 +115,15 @@ definirNombresDirectorios(){
 		if [ "$INPUT" != "dirconf" ] && [ ! -e "$GRUPO$INPUT/" ] ; then
 			CORTE=true
 			DIRBIN="$GRUPO""$INPUT""/"
+			mkdir "$DIRBIN"
 		elif [ -z "$INPUT" ]; then
+			mkdir "$DIRBIN"
 			CORTE=true
 		else
 			echo
 			echo "DIRECTORIO INCORRECTO!!!!!"
 			echo "Verifique que el nombre no sea: "
-			echo "Duplicado o igual a \"dircof\""
+			echo "Duplicado o igual a \"dirconf\""
 			echo
 		fi
 
@@ -127,13 +140,15 @@ definirNombresDirectorios(){
 		if [ "$INPUT" != "dirconf" ] && [ ! -e "$GRUPO$INPUT/" ] ; then
 			CORTE=true
 			DIRMA="$GRUPO""$INPUT""/"
+			mkdir "$DIRMA"
 		elif [ -z "$INPUT" ]; then
+			mkdir "$DIRMA"
 			CORTE=true
 		else
 			echo
 			echo "DIRECTORIO INCORRECTO!!!!!"
 			echo "Verifique que el nombre no sea: "
-			echo "Duplicado o igual a \"dircof\""
+			echo "Duplicado o igual a \"dirconf\""
 			echo
 		fi
 
@@ -150,13 +165,15 @@ definirNombresDirectorios(){
 		if [ "$INPUT" != "dirconf" ] && [ ! -e "$GRUPO$INPUT/" ] ; then
 			CORTE=true
 			DIRNOV="$GRUPO""$INPUT""/"
+			mkdir "$DIRNOV"
 		elif [ -z "$INPUT" ]; then
+			mkdir "$DIRNOV"
 			CORTE=true
 		else
 			echo
 			echo "DIRECTORIO INCORRECTO!!!!!"
 			echo "Verifique que el nombre no sea: "
-			echo "Duplicado o igual a \"dircof\""
+			echo "Duplicado o igual a \"dirconf\""
 			echo
 		fi
 
@@ -173,13 +190,15 @@ definirNombresDirectorios(){
 		if [ "$INPUT" != "dirconf" ] && [ ! -e "$GRUPO$INPUT/" ] ; then
 			CORTE=true
 			DIRACE="$GRUPO""$INPUT""/"
+			mkdir "$DIRACE"
 		elif [ -z "$INPUT" ]; then
+			mkdir "$DIRACE"
 			CORTE=true
 		else
 			echo
 			echo "DIRECTORIO INCORRECTO!!!!!"
 			echo "Verifique que el nombre no sea: "
-			echo "Duplicado o igual a \"dircof\""
+			echo "Duplicado o igual a \"dirconf\""
 			echo
 		fi
 
@@ -196,13 +215,15 @@ definirNombresDirectorios(){
 		if [ "$INPUT" != "dirconf" ] && [ ! -e "$GRUPO$INPUT/" ] ; then
 			CORTE=true
 			DIRREJ="$GRUPO""$INPUT""/"
+			mkdir "$DIRREJ"
 		elif [ -z "$INPUT" ]; then
+			mkdir "$DIRREJ"
 			CORTE=true
 		else
 			echo
 			echo "DIRECTORIO INCORRECTO!!!!!"
 			echo "Verifique que el nombre no sea: "
-			echo "Duplicado o igual a \"dircof\""
+			echo "Duplicado o igual a \"dirconf\""
 			echo
 		fi
 
@@ -219,13 +240,15 @@ definirNombresDirectorios(){
 		if [ "$INPUT" != "dirconf" ] && [ ! -e "$GRUPO$INPUT/" ] ; then
 			CORTE=true
 			DIRVAL="$GRUPO""$INPUT""/"
+			mkdir "$DIRVAL"
 		elif [ -z "$INPUT" ]; then
+			mkdir "$DIRVAL"
 			CORTE=true
 		else
 			echo
 			echo "DIRECTORIO INCORRECTO!!!!!"
 			echo "Verifique que el nombre no sea: "
-			echo "Duplicado o igual a \"dircof\""
+			echo "Duplicado o igual a \"dirconf\""
 			echo
 		fi
 
@@ -242,13 +265,15 @@ definirNombresDirectorios(){
 		if [ "$INPUT" != "dirconf" ] && [ ! -e "$GRUPO$INPUT/" ] ; then
 			CORTE=true
 			DIRREP="$GRUPO""$INPUT""/"
+			mkdir "$DIRREP"
 		elif [ -z "$INPUT" ]; then
+			mkdir "$DIRREP"			
 			CORTE=true
 		else
 			echo
 			echo "DIRECTORIO INCORRECTO!!!!!"
 			echo "Verifique que el nombre no sea: "
-			echo "Duplicado o igual a \"dircof\""
+			echo "Duplicado o igual a \"dirconf\""
 			echo
 		fi
 
@@ -265,13 +290,15 @@ definirNombresDirectorios(){
 		if [ "$INPUT" != "dirconf" ] && [ ! -e "$GRUPO$INPUT/" ] ; then
 			CORTE=true
 			DIRLOG="$GRUPO""$INPUT""/"
+			mkdir "$DIRLOG"
 		elif [ -z "$INPUT" ]; then
+			mkdir "$DIRLOG"
 			CORTE=true
 		else
 			echo
 			echo "DIRECTORIO INCORRECTO!!!!!"
 			echo "Verifique que el nombre no sea: "
-			echo "Duplicado o igual a \"dircof\""
+			echo "Duplicado o igual a \"dirconf\""
 			echo
 		fi
 
@@ -296,6 +323,7 @@ definirNombresDirectorios(){
 		if [ "$INPUT" = "Ok" ]; then
 			CORTE=true
 		elif [ "$INPUT" = "Editar" ]; then
+			borrarDirectorios
 			definirNombresDirectorios
 			CORTE=true
 		fi
@@ -308,10 +336,8 @@ grabarArchConf(){
 	FECHA=`date "+%d/%m/%Y %H:%M"`
 	USR="$USER"
 
-	mkdir `basename "$GRUPO"`
-	cd `basename "$GRUPO"`
-	mkdir `basename "$DIRCONF"`
-	cd ..
+	mkdir "$DIRCONF"
+
 
 	echo "GRUPO=$GRUPO=$USR=$FECHA" >> "$ARCHCONF"
 	echo "DIRCONF=$DIRCONF=$USR=$FECHA" >> "$ARCHCONF"
@@ -325,20 +351,6 @@ grabarArchConf(){
 	echo "DIRLOG=$DIRLOG=$USR=$FECHA" >> "$ARCHCONF"
 	echo "ARCHCONF=$ARCHCONF=$USR=$FECHA" >> "$ARCHCONF"
 
-}
-
-generarDirectorios(){
-	
-	cd `basename "$GRUPO"`
-	mkdir `basename "$DIRBIN"` 
-	mkdir `basename "$DIRMA"`
-	mkdir `basename "$DIRNOV"`
-	mkdir `basename "$DIRACE"`
-	mkdir `basename "$DIRREJ"`
-	mkdir `basename "$DIRVAL"`
-	mkdir `basename "$DIRREP"`
-	mkdir `basename "$DIRLOG"`
-	cd ..
 }
 
 ##############################################################################
@@ -377,9 +389,10 @@ if [ "$1" = "-i" ]; then
       		WHO=$USER
      		echo -e "$WHEN - $WHO - instalador - Info-Instalando sistema... " >> $LOGFILE
 		echo
+		echo "Creando $GRUPO ..."
+		mkdir "$GRUPO"
 		definirNombresDirectorios
 		grabarArchConf
-		generarDirectorios
 	else
 		echo 
 		#reinstalacion (Sprint2)
