@@ -35,13 +35,34 @@ DIRREP="$GRUPO""reportes/"
 #Declaro subdirectorio log (DEFAULT)
 DIRLOG="$GRUPO""log/"
 
-
+LOGFILE="$DIRCONF""insta.log"
 ##############################################################################
 
 ############################# PROCEDIMIENTOS #################################
+
+
+crearArchivoDeLog(){
+
+if [ ! -f "$LOGFILE" ]; then
+    touch $LOGFILE
+    if [ ! -f "$LOGFILE" ]; then
+        echo "No existe $LOGFILE y no se puede generar"
+        exit
+    else
+	return 0
+    fi
+else
+	return 0	
+fi
+
+}
 chequeoPerl(){
 
 	echo "Chequeando Perl..."
+	WHEN=`date "+%Y/%m/%d %T"`
+      	WHO=$USER
+     	echo -e "$WHEN - $WHO - instalador - Info-InstalandoPerl " >> $LOGFILE
+	echo
 	echo
 	#Con el primer comando me quedo con la segunda linea de perl -v
 	#Con el segundo me quedo con la version
@@ -50,9 +71,16 @@ chequeoPerl(){
 
 	if [ "$VERSION" -lt "5" ]; then
 		echo "Debe instalar Perl 5 o superior"
+		WHEN=`date "+%Y/%m/%d %T"`
+      		WHO=$USER
+     		echo -e "$WHEN - $WHO - instalador -Debe instalar Perl 5 o superior  " >> $LOGFILE
+		echo
 		echo
 	else
 		echo "Perl 5 o superior instalado"
+		WHEN=`date "+%Y/%m/%d %T"`
+      		WHO=$USER
+     		echo -e "$WHEN - $WHO - instalador -Perl 5 o superior instalado  " >> $LOGFILE
 		echo
 	fi
 
@@ -70,6 +98,7 @@ definirNombresDirectorios(){
 
 		echo "DIRECTORIO PARA EJECUTABLES"
 		echo "DEFAULT $DIRBIN"
+		
 		echo
 		read INPUT
 		if [ "$INPUT" != "dirconf" ] && [ ! -e "$GRUPO$INPUT/" ] ; then
@@ -279,6 +308,11 @@ grabarArchConf(){
 	FECHA=`date "+%d/%m/%Y %H:%M"`
 	USR="$USER"
 
+	mkdir `basename "$GRUPO"`
+	cd `basename "$GRUPO"`
+	mkdir `basename "$DIRCONF"`
+	cd ..
+
 	echo "GRUPO=$GRUPO=$USR=$FECHA" >> "$ARCHCONF"
 	echo "DIRCONF=$DIRCONF=$USR=$FECHA" >> "$ARCHCONF"
 	echo "DIRBIN=$DIRBIN=$USR=$FECHA" >> "$ARCHCONF"
@@ -290,9 +324,11 @@ grabarArchConf(){
 	echo "DIRREP=$DIRREP=$USR=$FECHA" >> "$ARCHCONF"
 	echo "DIRLOG=$DIRLOG=$USR=$FECHA" >> "$ARCHCONF"
 	echo "ARCHCONF=$ARCHCONF=$USR=$FECHA" >> "$ARCHCONF"
+
 }
 
 generarDirectorios(){
+	
 	cd `basename "$GRUPO"`
 	mkdir `basename "$DIRBIN"` 
 	mkdir `basename "$DIRMA"`
@@ -337,6 +373,9 @@ if [ "$1" = "-i" ]; then
 	
 	if [ ! -e "$ARCHCONF" ]; then
 		echo "Instalando sistema..."
+		WHEN=`date "+%Y/%m/%d %T"`
+      		WHO=$USER
+     		echo -e "$WHEN - $WHO - instalador - Info-Instalando sistema... " >> $LOGFILE
 		echo
 		definirNombresDirectorios
 		grabarArchConf
@@ -344,6 +383,10 @@ if [ "$1" = "-i" ]; then
 	else
 		echo 
 		#reinstalacion (Sprint2)
+		WHEN=`date "+%Y/%m/%d %T"`
+      		WHO=$USER
+     		echo -e "$WHEN - $WHO - instalador - Info-Re Instalando sistema... " >> $LOGFILE
+		echo
 	fi
 
 fi
