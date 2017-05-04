@@ -35,6 +35,14 @@ DIRREP="$GRUPO""reportes/"
 #Declaro subdirectorio log (DEFAULT)
 DIRLOG="$GRUPO""log/"
 
+DIRDATOS="datos/"
+
+ARCHMAESTR="$DIRDATOS""maestro.csv"
+
+ARCHNOV="$DIRDATOS""*"
+
+ARCHCOMANDOS="*.sh"
+
 LOGFILE="$DIRCONF""insta.log"
 ##############################################################################
 
@@ -353,6 +361,24 @@ grabarArchConf(){
 
 }
 
+prepararInstalacion(){
+	if [ ! -e "$ARCHMAESTR" ]; then
+		echo "El archivo maestro no existe"
+		exit 0
+	else
+		mv "$ARCHMAESTR" "$DIRMA"
+	fi
+
+	if [ ! "`ls "$DIRDATOS"`" ]; then
+		echo "No hay novedades"
+	else
+		mv $ARCHNOV "$DIRNOV"
+	fi
+
+	rm -r "$DIRDATOS"
+
+}
+
 ##############################################################################
 
 ################################### MAIN ####################################
@@ -404,7 +430,7 @@ if [ "$1" = "-i" ]; then
 
 fi
 
-
+prepararInstalacion
 
 
 
