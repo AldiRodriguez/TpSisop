@@ -44,6 +44,7 @@ ARCHNOV="$DIRDATOS""*"
 ARCHCOMANDOS="*.sh"
 
 LOGFILE="$DIRCONF""insta.log"
+
 ##############################################################################
 
 ############################# PROCEDIMIENTOS #################################
@@ -52,13 +53,14 @@ LOGFILE="$DIRCONF""insta.log"
 crearArchivoDeLog(){
 
 if [ ! -f "$LOGFILE" ]; then
-    touch $LOGFILE
-    if [ ! -f "$LOGFILE" ]; then
-        echo "No existe $LOGFILE y no se puede generar"
-        exit
-    else
+	touch $LOGFILE
+	echo "Creado $LOGFILE"
+	if [ ! -f "$LOGFILE" ]; then
+		echo "No existe $LOGFILE y no se puede generar"
+		exit
+	else
 	return 0
-    fi
+	fi
 else
 	return 0	
 fi
@@ -68,8 +70,8 @@ chequeoPerl(){
 
 	echo "Chequeando Perl..."
 	WHEN=`date "+%Y/%m/%d %T"`
-      	WHO=$USER
-     	echo -e "$WHEN - $WHO - instalador - Info-InstalandoPerl " >> $LOGFILE
+		WHO=$USER
+		echo -e "$WHEN - $WHO - instalador - Info-InstalandoPerl " >> $LOGFILE
 	echo
 	echo
 	#Con el primer comando me quedo con la segunda linea de perl -v
@@ -80,15 +82,15 @@ chequeoPerl(){
 	if [ "$VERSION" -lt "5" ]; then
 		echo "Debe instalar Perl 5 o superior"
 		WHEN=`date "+%Y/%m/%d %T"`
-      		WHO=$USER
-     		echo -e "$WHEN - $WHO - instalador -Debe instalar Perl 5 o superior  " >> $LOGFILE
+			WHO=$USER
+			echo -e "$WHEN - $WHO - instalador -Debe instalar Perl 5 o superior  " >> $LOGFILE
 		echo
 		echo
 	else
 		echo "Perl 5 o superior instalado"
 		WHEN=`date "+%Y/%m/%d %T"`
-      		WHO=$USER
-     		echo -e "$WHEN - $WHO - instalador -Perl 5 o superior instalado  " >> $LOGFILE
+			WHO=$USER
+			echo -e "$WHEN - $WHO - instalador -Perl 5 o superior instalado  " >> $LOGFILE
 		echo
 	fi
 
@@ -364,14 +366,26 @@ grabarArchConf(){
 prepararInstalacion(){
 	if [ ! -e "$ARCHMAESTR" ]; then
 		echo "El archivo maestro no existe"
+		WHEN=`date "+%Y/%m/%d %T"`
+			WHO=$USER
+			echo -e "$WHEN - $WHO - El archivo maestro no existe - Error  " >> $LOGFILE
+			echo
 		exit 0
 	else
+		WHEN=`date "+%Y/%m/%d %T"`
+			WHO=$USER
+			echo -e "$WHEN - $WHO - Moviendo archivo maestro a $DIRMA - Info" >> $LOGFILE
+		echo
 		mv "$ARCHMAESTR" "$DIRMA"
 	fi
 
 	if [ ! "`ls "$DIRDATOS"`" ]; then
 		echo "No hay novedades"
 	else
+		WHEN=`date "+%Y/%m/%d %T"`
+			WHO=$USER
+			echo -e "$WHEN - $WHO - Moviendo archivo novedades a $DIRNOV - Info" >> $LOGFILE
+		echo
 		mv $ARCHNOV "$DIRNOV"
 	fi
 
@@ -382,6 +396,8 @@ prepararInstalacion(){
 ##############################################################################
 
 ################################### MAIN ####################################
+
+
 if [ "$#" != 1 ]; then
 	echo "Modo de uso: $0 [argumento]"
 	exit 0
@@ -405,31 +421,31 @@ if [ "$1" = "-t" ]; then
 	
 fi
 
-chequeoPerl
+
 
 if [ "$1" = "-i" ]; then
 	
 	if [ ! -e "$ARCHCONF" ]; then
 		echo "Instalando sistema..."
-		WHEN=`date "+%Y/%m/%d %T"`
-      		WHO=$USER
-     		echo -e "$WHEN - $WHO - instalador - Info-Instalando sistema... " >> $LOGFILE
 		echo
 		echo "Creando $GRUPO ..."
 		mkdir "$GRUPO"
 		definirNombresDirectorios
 		grabarArchConf
+		WHEN=`date "+%Y/%m/%d %T"`
+			WHO=$USER
+			echo -e "$WHEN - $WHO - instalador - Info-Instalando sistema... " >> $LOGFILE
 	else
 		echo 
 		#reinstalacion (Sprint2)
 		WHEN=`date "+%Y/%m/%d %T"`
-      		WHO=$USER
-     		echo -e "$WHEN - $WHO - instalador - Info-Re Instalando sistema... " >> $LOGFILE
+			WHO=$USER
+			echo -e "$WHEN - $WHO - instalador - Info-Re Instalando sistema... " >> $LOGFILE
 		echo
 	fi
 
 fi
-
+chequeoPerl
 prepararInstalacion
 
 
