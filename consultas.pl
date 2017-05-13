@@ -101,13 +101,105 @@ sub listarSinFiltro{
 
 ############################# BALANCES #################################
 sub balancearEntidad{
-	my $entidad = @_[0];
-	@opciones = opciones(2);
+	my @entidades = @_;
+	#@opciones = opciones(2);
+
+	my @listaHash = keys(%hashFiles);
+	my $i = 0;
+	
+	my %desde, %hacia;
+	while ($i <= $#listaHash)  {
+		open(ENTRADA, "<$listaHash[$i]");
+		my @lineas = <ENTRADA>;
+		foreach $linea (@lineas) {
+			($desde = $linea) =~ s/^[^;]*;([^;]*);[^;]*;[^;]*;[^;]*;[^;]*;([^;]*);.*$/\1;\2/g;
+			($hacia = $linea) =~ s/^[^;]*;[^;]*;[^;]*;([^;]*);[^;]*;[^;]*;([^;]*);.*$/\1;\2/g;
+
+			my ($orig, $valor1) = split(/;/, $desde);
+			my ($dest, $valor2) = split(/;/, $hacia);
+			
+			$desde{$orig} = $desde{$orig} + $valor1 if ($orig);
+			$hacia{$dest} = $hacia{$dest} + $valor2 if ($dest);
+		}
+		close(ENTRADA);
+		$i++;
+	}
+	my $entidad = pop @entidades;
+	print BLUE BOLD, "Balance de entidades\n\n", RESET;
+	while ($entidad){
+		if (exists $hacia{$entidad} || exists $desde{$entidad}){
+			$positivo = $hacia{$entidad};
+			$negativo = $desde{$entidad};
+
+			print "Desde $entidad\t\t\t\t$negativo\t\t hacia otras entidades\n";
+			print "Hacia $entidad\t\t\t\t$positivo\t\t desde otras entidades\n";
+			print "Balance NEGATIVO para $entidad" if ($negativo > $positivo);
+			print "Balance POSITIVO para $entidad" if ($negativo <= $positivo);
+			my $total = $positivo - $negativo;
+			print BOLD RED,"  \t$total\n\n",RESET if ($total<0);
+			print BOLD GREEN,"  \t$total\n\n",RESET if ($total>0);
+
+		}
+
+		$entidad = pop @entidades;
+
+	}
+		
+
 }
 
 sub balancerEntreEntidades{
 	my ($entidad1, $entidad2) = @_;
-	@opciones = opciones(2);
+	#@opciones = opciones(2);
+
+	my @listaHash = keys(%hashFiles);
+	my $i = 0;
+	
+	my %bal;
+	print BLUE BOLD,"FECHA\t\tIMPORTE\t\tESTADO\t\tORIGEN\t\tDESTINO\n\n",RESET;
+	while ($i <= $#listaHash)  {
+		open(ENTRADA, "<$listaHash[$i]");
+		my @lineas = <ENTRADA>;
+		foreach $linea (@lineas) {
+			(my $linea1 = $linea) =~ s/^[^;]*;([^;]*);[^;]*;([^;]*);[^;]*;([^;]*);([^;]*);([^;]*);([^;]*);([^;]*)$/\1;\2;\3;\4;\5;\6;\7/g;
+			
+			my ($orig, $dest, $fecha, $importe, $estado, $CBUorig, $CBUdest) = split(/;/, $linea1);
+			
+			if ($orig eq $entidad1 && $dest eq $entidad2){
+				print "$fecha\t\t$importe\t\t$estado\t\t$CBUorig\t\t$CBUdest\n";
+				$bal{$orig} = $bal{$orig} + $importe;
+			}
+			
+		}
+		close(ENTRADA);
+		$i++;
+	}
+	print BOLD GREEN,"Desde $entidad1 hacia $entidad2\t\t$bal{$entidad1}\n",RESET;
+	$i = 0;
+	while ($i <= $#listaHash)  {
+		open(ENTRADA, "<$listaHash[$i]");
+		my @lineas2 = <ENTRADA>;
+		foreach $linea2 (@lineas2) {
+			$linea2 =~ s/^[^;]*;([^;]*);[^;]*;([^;]*);[^;]*;([^;]*);([^;]*);([^;]*);([^;]*);([^;]*)$/\1;\2;\3;\4;\5;\6;\7/g;
+
+			my ($orig2, $dest2, $fecha2, $importe2, $estado2, $CBUorig2, $CBUdest2) = split(/;/, $linea2);
+
+			if ($orig2 eq $entidad2 && $dest2 eq $entidad1){
+				print "$fecha2\t\t$importe2\t\t$estado2\t\t$CBUorig2\t\t$CBUdest2\n";
+				$bal{$orig2} = $bal{$orig2} + $importe2;
+			}
+			
+		}
+		close(ENTRADA);
+		$i++;
+	}
+	print BOLD GREEN,"Desde $entidad2 hacia $entidad1\t\t$bal{$entidad2}\n";
+	print "Balance POSITIVO para $entidad2\t\t".($bal{$entidad1} - $bal{$entidad2})."\n" if ($bal{$entidad1} > $bal{$entidad2});
+	print "Balance POSITIVO para $entidad1\t\t".($bal{$entidad2} - $bal{$entidad1})."\n" if ($bal{$entidad2} > $bal{$entidad1});
+
+	
+		
+	
 }
 #############################################################################
 
@@ -238,13 +330,13 @@ sub archivoInput {
 					if ($fecha.".txt" eq $file){
 						$hashFiles{$direct.$file}=0;
 						print GREEN,"Fecha agregada\n",RESET;
-						print BOLD BLUE,"Ingrese otra fecha o 'q' para salir\n",RESET;
+						print BOLD BLUE,"Ingrese otra fecha o 'q' para terminar\n",RESET;
 						last;
 					}
 				}
 				if (! exists $hashFiles{$direct.$fecha.".txt"}) {
 					print RED,"No se encontro el archivo $fecha.txt\n",RESET;
-					print BOLD BLUE,"Ingrese otra fecha o 'q' para salir\n",RESET;
+					print BOLD BLUE,"Ingrese otra fecha o 'q' para terminar\n",RESET;
 				}
 
 				$fecha=<STDIN>;chomp($fecha);
@@ -415,17 +507,19 @@ sub output {
 			$opc2 =<STDIN>;chomp($opc2);
 		}
 		if ($opc2 == 1){
-			while ($opc3 != 1){
-				print BOLD BLUE,"Ingrese entidad\n",RESET;
-				$entidad = <STDIN>;chomp($entidad);
-				print BOLD BLUE, "¿Entidad correcta? $entidad\n", RESET;
-				print "1- Si\n";
-				print "2- No\n";
-				print "Rta: ";
-				$opc3 =<STDIN>;chomp($opc3);
-			}
+			
+			@listaEntidades;
+			print BOLD BLUE,"Ingrese entidad o 'q' para terminar\n",RESET;
+			my $entidad = <STDIN>;chomp($entidad);
 
-			balancearEntidad($entidad);
+			while ($entidad ne "q"){
+				if ($entidad) {push @listaEntidades, $entidad;}
+				print BOLD BLUE,"Ingrese otra entidad o 'q' para finalizar\n",RESET;
+
+				$entidad = <STDIN>;chomp($entidad);
+			}
+				
+			balancearEntidad(@listaEntidades);
 
 		}elsif ($opc2 == 2){
 			while ($opc3 != 1){
