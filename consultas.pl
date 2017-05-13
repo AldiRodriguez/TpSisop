@@ -113,6 +113,8 @@ sub balancerEntreEntidades{
 
 ############################# RANKINGS #################################
 sub rankearIngresos{
+	print GREEN BOLD,"Ranking TOP 3 INGRESOS\n\n", RESET;
+	print GREEN,"Entidad\t\t\tImporte Total\n",RESET;
 	#@opciones = opciones(3);
 	my @listaHash = keys(%hashFiles);
 	my $i = 0;
@@ -138,7 +140,31 @@ sub rankearIngresos{
 }
 
 sub rankearEgresos{
-	@opciones = opciones(3);
+	print GREEN BOLD,"Ranking TOP 3 EGRESOS\n\n", RESET;
+	print GREEN,"Entidad\t\t\tImporte Total\n",RESET;
+	
+	#@opciones = opciones(3);
+	my @listaHash = keys(%hashFiles);
+	my $i = 0;
+	my %rank;
+	while ($i <= $#listaHash)  {
+		open(ENTRADA, "<$listaHash[$i]");
+		my @lineas = <ENTRADA>;
+		foreach $linea (@lineas) {
+			$linea =~ s/^[^;]*;([^;]*);[^;]*;[^;]*;[^;]*;[^;]*;([^;]*);.*$/\1;\2/g;
+			my ($orig, $valor) = split(/;/, $linea);
+			
+			$rank{$orig} = $rank{$orig} + $valor;
+		}
+		close(ENTRADA);
+		$i++;
+
+	}
+	my $cuenta = 0;
+	foreach my $name (sort { $rank{$b} <=> $rank{$a} } keys %rank) {
+    	printf "$name\t\t\t$rank{$name}\n" if $cuenta < 3;
+    	$cuenta ++;
+	}
 }
 
 ##############################################################################
