@@ -67,11 +67,12 @@ fi
 
 }
 chequeoPerl(){
-
+	
+	echo
 	echo "Chequeando Perl..."
 	WHEN=`date "+%Y/%m/%d %T"`
 		WHO=$USER
-		echo -e "$WHEN - $WHO - instalador - Info-InstalandoPerl " >> $LOGFILE
+		echo -e "$WHEN - $WHO - instalador - InstalandoPerl - Info" >> $LOGFILE
 	echo
 	echo
 	#Con el primer comando me quedo con la segunda linea de perl -v
@@ -83,14 +84,14 @@ chequeoPerl(){
 		echo "Debe instalar Perl 5 o superior"
 		WHEN=`date "+%Y/%m/%d %T"`
 			WHO=$USER
-			echo -e "$WHEN - $WHO - instalador -Debe instalar Perl 5 o superior  " >> $LOGFILE
+			echo -e "$WHEN - $WHO - instalador - Debe instalar Perl 5 o superior - Error  " >> $LOGFILE
 		echo
 		echo
 	else
 		echo "Perl 5 o superior instalado"
 		WHEN=`date "+%Y/%m/%d %T"`
 			WHO=$USER
-			echo -e "$WHEN - $WHO - instalador -Perl 5 o superior instalado  " >> $LOGFILE
+			echo -e "$WHEN - $WHO - instalador - Perl 5 o superior instalado - Info " >> $LOGFILE
 		echo
 	fi
 
@@ -128,13 +129,20 @@ definirNombresDirectorios(){
 			mkdir "$DIRBIN"
 		elif [ -z "$INPUT" ]; then
 			mkdir "$DIRBIN"
+			WHEN=`date "+%Y/%m/%d %T"`
+				WHO=$USER
+				echo -e "$WHEN - $WHO - Creacion de directorio para ejecutables - Directorio creado - Info " >> $LOGFILE
+				echo
 			CORTE=true
 		else
 			echo
 			echo "DIRECTORIO INCORRECTO!!!!!"
 			echo "Verifique que el nombre no sea: "
 			echo "Duplicado o igual a \"dirconf\""
-			echo
+			WHEN=`date "+%Y/%m/%d %T"`
+				WHO=$USER
+				echo -e "$WHEN - $WHO - Creacion de directorio para ejecutables - Directorio incorrecto - Error " >> $LOGFILE
+				echo
 		fi
 
 	done
@@ -153,13 +161,20 @@ definirNombresDirectorios(){
 			mkdir "$DIRMA"
 		elif [ -z "$INPUT" ]; then
 			mkdir "$DIRMA"
+			WHEN=`date "+%Y/%m/%d %T"`
+				WHO=$USER
+				echo -e "$WHEN - $WHO - Creacion de directorio para maestros - Directorio creado - Info " >> $LOGFILE
+				echo
 			CORTE=true
 		else
 			echo
 			echo "DIRECTORIO INCORRECTO!!!!!"
 			echo "Verifique que el nombre no sea: "
 			echo "Duplicado o igual a \"dirconf\""
-			echo
+			WHEN=`date "+%Y/%m/%d %T"`
+				WHO=$USER
+				echo -e "$WHEN - $WHO - Creacion de directorio para maestros - Directorio incorrecto - Error " >> $LOGFILE
+				echo
 		fi
 
 	done
@@ -178,13 +193,20 @@ definirNombresDirectorios(){
 			mkdir "$DIRNOV"
 		elif [ -z "$INPUT" ]; then
 			mkdir "$DIRNOV"
+			WHEN=`date "+%Y/%m/%d %T"`
+				WHO=$USER
+				echo -e "$WHEN - $WHO - Creacion de directorio para novedades - Directorio creado - Info " >> $LOGFILE
+				echo
 			CORTE=true
 		else
 			echo
 			echo "DIRECTORIO INCORRECTO!!!!!"
 			echo "Verifique que el nombre no sea: "
 			echo "Duplicado o igual a \"dirconf\""
-			echo
+			WHEN=`date "+%Y/%m/%d %T"`
+				WHO=$USER
+				echo -e "$WHEN - $WHO - Creacion de directorio para novedades - Directorio incorrecto - Error " >> $LOGFILE
+				echo
 		fi
 
 	done
@@ -203,13 +225,20 @@ definirNombresDirectorios(){
 			mkdir "$DIRACE"
 		elif [ -z "$INPUT" ]; then
 			mkdir "$DIRACE"
+			WHEN=`date "+%Y/%m/%d %T"`
+				WHO=$USER
+				echo -e "$WHEN - $WHO - Creacion de directorio para aceptados - Directorio creado - Info " >> $LOGFILE
+				echo
 			CORTE=true
 		else
 			echo
 			echo "DIRECTORIO INCORRECTO!!!!!"
 			echo "Verifique que el nombre no sea: "
 			echo "Duplicado o igual a \"dirconf\""
-			echo
+			WHEN=`date "+%Y/%m/%d %T"`
+				WHO=$USER
+				echo -e "$WHEN - $WHO - Creacion de directorio para aceptados - Directorio incorrecto - Error " >> $LOGFILE
+				echo
 		fi
 
 	done
@@ -228,13 +257,20 @@ definirNombresDirectorios(){
 			mkdir "$DIRREJ"
 		elif [ -z "$INPUT" ]; then
 			mkdir "$DIRREJ"
+			WHEN=`date "+%Y/%m/%d %T"`
+				WHO=$USER
+				echo -e "$WHEN - $WHO - Creacion de directorio para rechazados - Directorio creado - Info " >> $LOGFILE
+				echo
 			CORTE=true
 		else
 			echo
 			echo "DIRECTORIO INCORRECTO!!!!!"
 			echo "Verifique que el nombre no sea: "
 			echo "Duplicado o igual a \"dirconf\""
-			echo
+			WHEN=`date "+%Y/%m/%d %T"`
+				WHO=$USER
+				echo -e "$WHEN - $WHO - Creacion de directorio para rechazados - Directorio incorrecto - Error " >> $LOGFILE
+				echo
 		fi
 
 	done
@@ -253,13 +289,20 @@ definirNombresDirectorios(){
 			mkdir "$DIRVAL"
 		elif [ -z "$INPUT" ]; then
 			mkdir "$DIRVAL"
+			WHEN=`date "+%Y/%m/%d %T"`
+				WHO=$USER
+				echo -e "$WHEN - $WHO - Creacion de directorio para validados - Directorio creado - Info " >> $LOGFILE
+				echo
 			CORTE=true
 		else
 			echo
 			echo "DIRECTORIO INCORRECTO!!!!!"
 			echo "Verifique que el nombre no sea: "
 			echo "Duplicado o igual a \"dirconf\""
-			echo
+			WHEN=`date "+%Y/%m/%d %T"`
+				WHO=$USER
+				echo -e "$WHEN - $WHO - Creacion de directorio para validados - Directorio incorrecto - Error " >> $LOGFILE
+				echo
 		fi
 
 	done
@@ -277,14 +320,21 @@ definirNombresDirectorios(){
 			DIRREP="$GRUPO""$INPUT""/"
 			mkdir "$DIRREP"
 		elif [ -z "$INPUT" ]; then
-			mkdir "$DIRREP"			
+			mkdir "$DIRREP"
+			WHEN=`date "+%Y/%m/%d %T"`
+				WHO=$USER
+				echo -e "$WHEN - $WHO - Creacion de directorio para reportes - Directorio creado - Info " >> $LOGFILE
+				echo			
 			CORTE=true
 		else
 			echo
 			echo "DIRECTORIO INCORRECTO!!!!!"
 			echo "Verifique que el nombre no sea: "
 			echo "Duplicado o igual a \"dirconf\""
-			echo
+			WHEN=`date "+%Y/%m/%d %T"`
+				WHO=$USER
+				echo -e "$WHEN - $WHO - Creacion de directorio para reportes - Directorio incorrecto - Error " >> $LOGFILE
+				echo
 		fi
 
 	done
@@ -303,13 +353,20 @@ definirNombresDirectorios(){
 			mkdir "$DIRLOG"
 		elif [ -z "$INPUT" ]; then
 			mkdir "$DIRLOG"
+			WHEN=`date "+%Y/%m/%d %T"`
+				WHO=$USER
+				echo -e "$WHEN - $WHO - Creacion de directorio para logs - Directorio creado - Info " >> $LOGFILE
+				echo
 			CORTE=true
 		else
 			echo
 			echo "DIRECTORIO INCORRECTO!!!!!"
 			echo "Verifique que el nombre no sea: "
 			echo "Duplicado o igual a \"dirconf\""
-			echo
+			WHEN=`date "+%Y/%m/%d %T"`
+				WHO=$USER
+				echo -e "$WHEN - $WHO - Creacion de directorio para logs - Directorio incorrecto - Error " >> $LOGFILE
+				echo
 		fi
 
 	done
@@ -346,9 +403,7 @@ grabarArchConf(){
 	FECHA=`date "+%d/%m/%Y %H:%M"`
 	USR="$USER"
 
-	mkdir "$DIRCONF"
-
-
+	
 	echo "GRUPO=$GRUPO=$USR=$FECHA" >> "$ARCHCONF"
 	echo "DIRCONF=$DIRCONF=$USR=$FECHA" >> "$ARCHCONF"
 	echo "DIRBIN=$DIRBIN=$USR=$FECHA" >> "$ARCHCONF"
@@ -431,17 +486,19 @@ if [ "$1" = "-i" ]; then
 		echo
 		echo "Creando $GRUPO ..."
 		mkdir "$GRUPO"
-		definirNombresDirectorios
-		grabarArchConf
+		mkdir "$DIRCONF"
 		WHEN=`date "+%Y/%m/%d %T"`
 			WHO=$USER
-			echo -e "$WHEN - $WHO - instalador - Info-Instalando sistema... " >> $LOGFILE
+			echo -e "$WHEN - $WHO - instalador - Instalando sistema... - Info " >> $LOGFILE
+		definirNombresDirectorios
+		grabarArchConf
+
 	else
 		echo 
 		#reinstalacion (Sprint2)
 		WHEN=`date "+%Y/%m/%d %T"`
 			WHO=$USER
-			echo -e "$WHEN - $WHO - instalador - Info-Re Instalando sistema... " >> $LOGFILE
+			echo -e "$WHEN - $WHO - instalador - Re Instalando sistema... - Info " >> $LOGFILE
 		echo
 	fi
 
