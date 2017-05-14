@@ -170,7 +170,7 @@ elegirOpcion(){
 crearArchivoDeLog
 
 # Valido que no este inicializado previamente.
-if [ "$inicializado" ] ; then
+if [ "$inicializado" == "true" ] ; then
     echo "ya se inicializo el ambiente."
     WHEN=`date "+%Y/%m/%d %T"`
     WHO=$USER
@@ -215,13 +215,6 @@ echo -e "$WHEN - $WHO - inicializador - Info - Ha finalizado la inicializacion" 
 
 # Elige opcion de ejecutar deoamon antes de irse
 elegirOpcion
-	echo "DENTRO"
-	echo $DIRMA
-	echo $DIRNOV
-	echo $DIRACE
-	echo $DIRBIN
-	echo $DIRACE
-	echo $DIRREJ
-echo "DENTRO"
+
 
 #############################################################################

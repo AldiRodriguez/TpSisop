@@ -25,31 +25,36 @@ LOGFILE="$DIRLOG/ini.log"
 
 verificaPreCondStartDeamon(){
 
-	statusInit=$(estaDeamonInicializado)
+	statusInit=$(estaAmbienteInicializado)		
 	if [ "$statusInit" == "false" ]; then
 		echo "Ambiente no inicializado. No es posible ejecutar Start."
-		# Sprint2: Enviar al log.
+	    	WHEN=`date "+%Y/%m/%d %T"`
+	    	WHO=$USER
+	    	echo -e "$WHEN - $WHO - Start - Error - Ambiente no inicializado. No es posible ejecutar Start." >> $LOGFILE
+
 		echo "false"
 		exit
 	fi
-
 
 	statDeamonStarted=$(estaDeamonIniciado)
 	if [ "$statDeamonStarted" == "true" ]; then
-		echo "Deamon ya esta Iniciado. No es posible ejecutar Start nuevamente."
-		# Sprint2: Enviar al log.
+		echo "Deamon ya esta Iniciado. No es posible ejecutar Start nuevamente." 
+	    	WHEN=`date "+%Y/%m/%d %T"`
+	    	WHO=$USER
+	    	echo -e "$WHEN - $WHO - Start - Error - Deamon ya esta Iniciado. No es posible ejecutar Start nuevamente." >> $LOGFILE
 		echo "false"
 		exit
 	fi
-
+	
 	echo "true"
 }
 
 
-estaDeamonInicializado(){
+estaAmbienteInicializado(){
 
-	if [ "$inicializado" ] ; then
-	    echo "true"
+	if [ "$inicializado" == "true" ] ; then
+	    	echo "true"
+		exit
 	fi
 	echo "false"
 }
@@ -57,30 +62,29 @@ estaDeamonInicializado(){
 
 estaDeamonIniciado(){
 
-	ps ax | grep startDemon | grep -v "grep" | grep -v "gedit" > /dev/null
-	status=${?}
+	# Busco ultomp PID utilizado
+	lastPID=`grep PIDDEM $ARCHCONF | cut -d'=' -f2`
 
-	if [ "${status}" = "0" ]; then
-	    echo "true"
-	else
-	    echo "false"
+	# Valido que este activo el Ultimo PID
+	statusProc=`ps ax | grep -c "^\s*$lastPID"` #&> /dev/null
+	if [ $statusProc -eq 0 ]; then
+		echo "false"
+		exit
 	fi
+	echo "true"
 }
 
+grabarPIDDemonio(){
 
-setearAmbiente(){
+	PID="$1"
+	FECHA=`date "+%d/%m/%Y %H:%M"`
+	USR="$USER"
 
-	#seteo variables de ambiente leyendo el archivo de configuracion
-	export DIRBIN=`grep DIRBIN $ARCHCONF | cut -d'/' -f7`
-	export DIRMA=`grep DIRMA $ARCHCONF | cut -d'/' -f7`
-	export DIRNOV=`grep DIRNOV $ARCHCONF | cut -d'/' -f7`
-	export DIRACE=`grep DIRACE $ARCHCONF | cut -d '/' -f7`
-	export DIRACE=`grep DIRACE $ARCHCONF | cut -d '/' -f7`	
-	export DIRREJ=`grep DIRREJ $ARCHCONF | cut -d'/' -f7`
-	export DIRVAL=`grep DIRVAL $ARCHCONF | cut -d'/' -f7`
-	export DIRREP=`grep DIRREP $ARCHCONF | cut -d'/' -f7`
-	export DIRLOG=`grep DIRLOG $ARCHCONF | cut -d'/' -f7`
-	export inicializado="true"
+	RECORD_NEW_PIDDEM="PIDDEM=$PID=$USR="
+
+	# Actualizo PID
+	sed -i "s/PIDDEM=[0-9].*/${RECORD_NEW_PIDDEM}/g" $ARCHCONF 
+
 }
 
 
@@ -89,30 +93,32 @@ setearAmbiente(){
 ################################### MAIN ####################################
 
 
-setearAmbiente
-
-
 echo "-------------------------------------"
 echo "PRE CONDICIONES"
 echo "-------------------"
-statusPreCond=$(verificaPreCondStartDeamon)
-if [ "$statusPreCond" != "true" ]; then
-	echo "No cumple PRE CONDICIONES para iniciar Deamon."
-	# Sprint2: Enviar al log.
+statPreCond=$(verificaPreCondStartDeamon)
+if [ "$statPreCond" != "true" ]; then
+	echo "    No cumple PRE CONDICIONES para iniciar Deamon. Leer Log para mas informacion"
+	echo "$statPreCond"
+    	WHEN=`date "+%Y/%m/%d %T"`
+    	WHO=$USER
+    	echo -e "$WHEN - $WHO - Start - Error - Start abortado. No cumple pre-condiciones." >> $LOGFILE
 	exit 1
+else
+	echo "    Cumple pre condicions para inicio."
+	echo "-------------------------------------"
+	echo "DEMON Inicio Backgraund"
+	echo "-------------------"
+	#$GRUPO$DIRBIN/demonio.sh &
+	./demonio.sh &
+
+    	WHEN=`date "+%Y/%m/%d %T"`
+    	WHO=$USER
+    	echo -e "$WHEN - $WHO - Start - Ifo - Demonio Iniciado." >> $LOGFILE
+
+	PID=$!
+	grabarPIDDemonio $PID
 fi
-echo "Status: SUCESS"
-
-echo "-------------------------------------"
-echo "DEMON Backgraund"
-echo "-------------------"
-
-source $GRUPO$DIRBIN/demonio.sh &
-#echo "Id de proceso del demonio: $!"
-# Pegar el PID y pasar para archivo de metadata.
-
-
-
 
 
 
