@@ -39,22 +39,21 @@ fi
 setearAmbiente(){
 
 	#seteo variables de ambiente leyendo el archivo de configuracion
-	export DIRBIN=`grep DIRBIN $ARCHCONF | cut -d'/' -f7`
-	export DIRMA=`grep DIRMA $ARCHCONF | cut -d'/' -f7`
-	export DIRNOV=`grep DIRNOV $ARCHCONF | cut -d'/' -f7`
-	export DIRACE=`grep DIRACE $ARCHCONF | cut -d '/' -f7`
-	export DIRACE=`grep DIRACE $ARCHCONF | cut -d '/' -f7`	
-	export DIRREJ=`grep DIRREJ $ARCHCONF | cut -d'/' -f7`
-	export DIRVAL=`grep DIRVAL $ARCHCONF | cut -d'/' -f7`
-	export DIRREP=`grep DIRREP $ARCHCONF | cut -d'/' -f7`
-	export DIRLOG=`grep DIRLOG $ARCHCONF | cut -d'/' -f7`
+	export DIRBIN=`grep DIRBIN $ARCHCONF | cut -d'/' -f9`
+	export DIRMA=`grep DIRMA $ARCHCONF | cut -d'/' -f9`
+	export DIRNOV=`grep DIRNOV $ARCHCONF | cut -d'/' -f9`
+	export DIRACE=`grep DIRACE $ARCHCONF | cut -d '/' -f9`
+	export DIRACE=`grep DIRACE $ARCHCONF | cut -d '/' -f9`	
+	export DIRREJ=`grep DIRREJ $ARCHCONF | cut -d'/' -f9`
+	export DIRVAL=`grep DIRVAL $ARCHCONF | cut -d'/' -f9`
+	export DIRREP=`grep DIRREP $ARCHCONF | cut -d'/' -f9`
+	export DIRLOG=`grep DIRLOG $ARCHCONF | cut -d'/' -f9`
 
 }
 
 detectarExistenciaArchivos(){
   cd "$GRUPO"
-#	archivosBin=("inicializador" "demonio")
-	archivosBin=("demonio")
+  archivosBin=("demonio")
   for archivo in ${archivosBin[@]} ; do
    	if [ `ls -l $DIRBIN | grep $archivo -c` -ne 1 ]; then
    	 	echo "Falta $archivo "
@@ -74,17 +73,6 @@ detectarExistenciaArchivos(){
     exit 1
   fi
 
-#  archivosNov=("nov1.csv" "nov2.csv")
-#  for file in ${archivosNov[@]} ; do
-#    if [ `ls -l $DIRNOV | grep $file -c` -ne 1 ]; then
-#      echo "Falta $file"
-#      WHEN=`date "+%Y/%m/%d %T"`
-#      WHO=$USER
-#      echo -e "$WHEN - $WHO - inicializador - Error- Falta $file" >> $LOGFILE
-#      exit 1
-#    fi
-#  done
-
   archivo_log_inic=("ini.log")
   if [ `ls -l $DIRLOG | grep $archivo_log_inic -c` -ne 1 ]; then
     echo "Falta $archivo_log_inic "
@@ -98,7 +86,6 @@ detectarExistenciaArchivos(){
 verificarPermisos(){
 
 	# Archivo Executable
- #	ejecutables=("$DIRBIN/inicializador" "$DIRBBIN/demonio")
 	ejecutables=("$DIRBIN/demonio.sh")
 	for arch in ${ejecutables[@]} ; do
    		 if [ ! -x "$arch" ] || [ ! -r "$arch" ] ; then
@@ -117,9 +104,7 @@ verificarPermisos(){
 	done
 
 	# Archivo Maestri
-	echo "$DIRMA/maestro.csv"
 	maestro=("$DIRMA/maestro.csv")
-	echo "$archivo_maestro"
 	if [ ! -r "$maestro" ] ; then
    		chmod +r "$maestro"
     	if [ ! -r "$maestro" ] ; then
@@ -206,7 +191,7 @@ verificarPermisos
 
 
 # Setea variable que indica inicializacion & Fin init
-export inicializado=$true
+export inicializado="true"
 echo "Ha finalizado la inicializacion"
 WHEN=`date "+%Y/%m/%d %T"`
 WHO=$USER
