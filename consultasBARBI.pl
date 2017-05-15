@@ -157,18 +157,18 @@ sub listarPorEntidadOrigen{
 	}
 	}
 	if ($opciones[1]==2 || $opciones[1]==3){
-		#open(FILE,">c:/temp/file.txt")
-		open OUTPUT, ">$opciones[2].txt"; ###REVISAR
+		my $outfile = '$opciones[2].txt'
+		open (OUTPUT, ">>$outfile"); ###REVISAR
 
 		if($opciones[0] == 1){ #conDetalle
 
 			foreach $entidad (keys %hashFiltroEntidad){
 
-				print OUTPUT GREEN BOLD,"Listado por entidad origen: $entidad\n\n", RESET;
+				print OUTPUT "Listado por entidad origen: $entidad\n\n";
 				my $total=0;
 
-				printf OUTPUT BOLD BLUE, "Banco origen: $entidad ------------------------------|\n",RESET;
-				printf OUTPUT BOLD BLUE,"|Fecha\t\t|Importe\t|Estado\t\t|Origen\t\t\t|Destino\t\t\t|\n",RESET;
+				printf OUTPUT "Banco origen: $entidad ------------------------------|\n";
+				printf OUTPUT "|Fecha\t\t|Importe\t|Estado\t\t|Origen\t\t\t|Destino\t\t\t|\n";
 					foreach $key (sort(keys %hashFiles)) {
 		
 						open(ENTRADA, "<$key");
@@ -185,29 +185,29 @@ sub listarPorEntidadOrigen{
 	 						my ($fecha, $importe,$estado,$cbuO,$cbuD) = split(/;/, $lineaC);
 							if( $entidadOrigen eq $entidad ) { 
 			 					printf OUTPUT "|$fecha\t|$importe\t\t|$estado\t|$cbuO\t|$cbuD\t|\n";
-			 					printf OUTPUT BOLD BLUE, "________________________________________\n",RESET;
+			 					printf OUTPUT "________________________________________\n";
 			 					$subtotal =$subtotal + $importe;
 			 				}
 			 	
 						}
 						if( $subtotal > 0 ) {
-							printf OUTPUT GREEN BOLD,"total fecha $fecha : $subtotal\n",RESET;
-							printf OUTPUT BOLD BLUE, "_____________________________________________\n",RESET;
+							printf OUTPUT "total fecha $fecha : $subtotal\n";
+							printf OUTPUT "_____________________________________________\n";
 						}	
 						close(ENTRADA);	
 						$total= $total+ $subtotal;	
 					}
-					printf OUTPUT GREEN BOLD, "total general: $total\n",RESET;
-					printf OUTPUT BOLD BLUE, "_______________________________________________________\n",RESET;
+					printf OUTPUT "total general: $total\n";
+					printf OUTPUT  "_______________________________________________________\n";
 			}		
 		}else{ ##SIN DETALLE
 
 			foreach $entidad (keys %hashFiltroEntidad){
-				print OUTPUT GREEN BOLD,"Listado por entidad origen: $entidad\n\n", RESET;
+				print OUTPUT "Listado por entidad origen: $entidad\n\n";
 				my $total=0;
 
-				printf OUTPUT BOLD BLUE, "Banco origen: $entidad ---------------------------\n",RESET;
-				printf OUTPUT BOLD BLUE,"|Fecha\t|Importe\t\t\t|\n",RESET;
+				printf OUTPUT "Banco origen: $entidad ---------------------------\n";
+				printf OUTPUT "|Fecha\t|Importe\t\t\t|\n";
 				foreach $key (sort(keys %hashFiles)) {
 		
 					open(ENTRADA, "<$key");
@@ -228,14 +228,14 @@ sub listarPorEntidadOrigen{
 			 	
 					}	
 					if( $subtotal > 0 ) {
-						printf OUTPUT GREEN BOLD,"total fecha $fecha : $subtotal\n",RESET;
-						printf OUTPUT BOLD BLUE,"___________________________________________________\n",RESET;
+						printf OUTPUT "total fecha $fecha : $subtotal\n";
+						printf OUTPUT "___________________________________________________\n";
 					}	
 					close(ENTRADA);	
 					$total= $total+ $subtotal;	
 				}
-				printf OUTPUT GREEN BOLD,"total general: $total\n",RESET;
-				printf OUTPUT BOLD BLUE,"____________________________________________________\n",RESET;
+				printf OUTPUT "total general: $total\n";
+				printf OUTPUT "____________________________________________________\n";
 
 			}
 		}
