@@ -59,7 +59,7 @@ sub opciones{
 		$direct = "./transfer/";
 
 		while (-e $direct.$direct2.$opciones[2]){
-			print RED,"El archivo ya existe\n Ingrese otro\n",RESET;
+			print RED,"El archivo ya existe\nIngrese otro\n",RESET;
 			$opciones[2] = <STDIN>;chomp($opciones[2]);
 		}
 		$opciones[2]=$direct.$direct2.$opciones[2]
@@ -102,8 +102,9 @@ sub listarSinFiltro{
 ############################# BALANCES #################################
 sub balancearEntidad{
 	my @entidades = @_;
-	#@opciones = opciones(2);
-
+	@opciones = opciones(2);
+	print $opciones[2];
+	open(SALIDA, ">$opciones[2]") or die "NO SE PUEDE ABRIR $opciones[2]\n" if ($opciones[1] == 2 || $opciones[1] == 3);
 	my @listaHash = keys(%hashFiles);
 	my $i = 0;
 	
@@ -125,38 +126,69 @@ sub balancearEntidad{
 		$i++;
 	}
 	my $entidad = pop @entidades;
-	print BLUE BOLD, "Balance de entidades\n\n", RESET;
+	if ($opciones[1] == 2 || $opciones[1] == 3){
+		print BLUE BOLD, "Balance de entidades\n\n", RESET;
+	}
+	if ($opciones[1] == 1 || $opciones[1] == 3){
+		print SALIDA "Balance de entidades\n\n";
+	}
+
 	while ($entidad){
 		if (exists $hacia{$entidad} || exists $desde{$entidad}){
 			$positivo = $hacia{$entidad};
 			$negativo = $desde{$entidad};
-
-			print "Desde $entidad\t\t\t\t$negativo\t\t hacia otras entidades\n";
-			print "Hacia $entidad\t\t\t\t$positivo\t\t desde otras entidades\n";
-			print "Balance NEGATIVO para $entidad" if ($negativo > $positivo);
-			print "Balance POSITIVO para $entidad" if ($negativo <= $positivo);
-			my $total = $positivo - $negativo;
-			print BOLD RED,"  \t$total\n\n",RESET if ($total<0);
-			print BOLD GREEN,"  \t$total\n\n",RESET if ($total>0);
+			if ($opciones[1] == 2 || $opciones[1] == 3){
+				print "Desde $entidad\t\t\t\t$negativo\t\t hacia otras entidades\n";
+				print "Hacia $entidad\t\t\t\t$positivo\t\t desde otras entidades\n";
+				print "Balance NEGATIVO para $entidad" if ($negativo > $positivo);
+				print "Balance POSITIVO para $entidad" if ($negativo <= $positivo);
+				my $total = $positivo - $negativo;
+				print BOLD RED,"  \t$total\n\n",RESET if ($total<0);
+				print BOLD GREEN,"  \t$total\n\n",RESET if ($total>0);
+			}
+			if ($opciones[1] == 1 || $opciones[1] == 3){
+				print SALIDA "Desde $entidad\t\t\t\t$negativo\t\t hacia otras entidades\n";
+				print SALIDA "Hacia $entidad\t\t\t\t$positivo\t\t desde otras entidades\n";
+				print SALIDA "Balance NEGATIVO para $entidad" if ($negativo > $positivo);
+				print SALIDA "Balance POSITIVO para $entidad" if ($negativo <= $positivo);
+				my $total = $positivo - $negativo;
+				print SALIDA "  \t$total\n\n" if ($total<0);
+				print SALIDA "  \t$total\n\n" if ($total>0);
+			}
 
 		}
 
 		$entidad = pop @entidades;
 
 	}
-		
+	close(SALIDA);
 
 }
 
 sub balancerEntreEntidades{
 	my ($entidad1, $entidad2) = @_;
-	#@opciones = opciones(2);
-
+	@opciones = opciones(2);
+	open(SALIDA, ">$opciones[2]") or die "NO SE PUEDE ABRIR $opciones[2]\n" if ($opciones[1] == 2 || $opciones[1] == 3);
+	
 	my @listaHash = keys(%hashFiles);
 	my $i = 0;
-	
+	print BLUE BOLD,"Transferencias entre $entidad1 y $entidad2\n\n", RESET;
 	my %bal;
-	print BLUE BOLD,"FECHA\t\tIMPORTE\t\tESTADO\t\tORIGEN\t\tDESTINO\n\n",RESET;
+	if ($opciones[0] == 1){
+		if ($opciones[1] == 1 || $opciones[1] == 3){
+			print BLUE BOLD,"FECHA\t\tIMPORTE\t\tESTADO\t\tORIGEN\t\tDESTINO\n\n",RESET;
+		}
+		if ($opciones[1] == 2 || $opciones[1] == 3){
+			print SALIDA "FECHA\t\tIMPORTE\t\tESTADO\t\tORIGEN\t\tDESTINO\n\n";
+		}
+	}elsif ($opciones[0] == 2){
+		if ($opciones[1] == 1 || $opciones[1] == 3){
+			print BLUE BOLD,"ENTIDAD\t\t\t\t\tIMPORTE\n\n",RESET;
+		}
+		if ($opciones[1] == 2 || $opciones[1] == 3){
+			print SALIDA "ENTIDAD\t\t\t\t\tIMPORTE\n\n";
+		}
+	}
 	while ($i <= $#listaHash)  {
 		open(ENTRADA, "<$listaHash[$i]");
 		my @lineas = <ENTRADA>;
@@ -165,8 +197,15 @@ sub balancerEntreEntidades{
 			
 			my ($orig, $dest, $fecha, $importe, $estado, $CBUorig, $CBUdest) = split(/;/, $linea1);
 			
-			if ($orig eq $entidad1 && $dest eq $entidad2){
-				print "$fecha\t\t$importe\t\t$estado\t\t$CBUorig\t\t$CBUdest\n";
+			if ($orig eq $entidad1 && $dest eq $entidad2 ){
+				if ($opciones[0] == 1){
+					if ($opciones[1] == 1 || $opciones[1] == 3){
+						print "$fecha\t\t$importe\t\t$estado\t\t$CBUorig\t\t$CBUdest\n";
+					}
+					if ($opciones[1] == 2 || $opciones[1] == 3){
+						print SALIDA "$fecha\t\t$importe\t\t$estado\t\t$CBUorig\t\t$CBUdest\n";
+					}
+				}
 				$bal{$orig} = $bal{$orig} + $importe;
 			}
 			
@@ -174,7 +213,14 @@ sub balancerEntreEntidades{
 		close(ENTRADA);
 		$i++;
 	}
-	print BOLD GREEN,"Desde $entidad1 hacia $entidad2\t\t$bal{$entidad1}\n",RESET;
+	
+	if ($opciones[1] == 1 || $opciones[1] == 3){
+		print BOLD GREEN,"Desde $entidad1 hacia $entidad2\t\t$bal{$entidad1}\n",RESET;
+	}
+	if ($opciones[1] == 2 || $opciones[1] == 3){
+		print SALIDA "Desde $entidad1 hacia $entidad2\t\t$bal{$entidad1}\n";
+	}
+
 	$i = 0;
 	while ($i <= $#listaHash)  {
 		open(ENTRADA, "<$listaHash[$i]");
@@ -185,7 +231,14 @@ sub balancerEntreEntidades{
 			my ($orig2, $dest2, $fecha2, $importe2, $estado2, $CBUorig2, $CBUdest2) = split(/;/, $linea2);
 
 			if ($orig2 eq $entidad2 && $dest2 eq $entidad1){
-				print "$fecha2\t\t$importe2\t\t$estado2\t\t$CBUorig2\t\t$CBUdest2\n";
+				if ($opciones[0] == 1){
+					if ($opciones[1] == 1 || $opciones[1] == 3){
+						print "$fecha2\t\t$importe2\t\t$estado2\t\t$CBUorig2\t\t$CBUdest2\n";
+					}
+					if ($opciones[1] == 2 || $opciones[1] == 3){
+						print SALIDA "$fecha2\t\t$importe2\t\t$estado2\t\t$CBUorig2\t\t$CBUdest2\n";
+					}
+				}
 				$bal{$orig2} = $bal{$orig2} + $importe2;
 			}
 			
@@ -193,21 +246,35 @@ sub balancerEntreEntidades{
 		close(ENTRADA);
 		$i++;
 	}
-	print BOLD GREEN,"Desde $entidad2 hacia $entidad1\t\t$bal{$entidad2}\n";
-	print "Balance POSITIVO para $entidad2\t\t".($bal{$entidad1} - $bal{$entidad2})."\n" if ($bal{$entidad1} > $bal{$entidad2});
-	print "Balance POSITIVO para $entidad1\t\t".($bal{$entidad2} - $bal{$entidad1})."\n" if ($bal{$entidad2} > $bal{$entidad1});
-
-	
+	if ($opciones[1] == 1 || $opciones[1] == 3){
+		print BOLD GREEN,"Desde $entidad2 hacia $entidad1\t\t$bal{$entidad2}\n";
+		print "Balance POSITIVO para $entidad2\t\t".($bal{$entidad1} - $bal{$entidad2})."\n" if ($bal{$entidad1} > $bal{$entidad2});
+		print "Balance POSITIVO para $entidad1\t\t".($bal{$entidad2} - $bal{$entidad1})."\n" if ($bal{$entidad2} > $bal{$entidad1});	
+	}
+	if ($opciones[1] == 2 || $opciones[1] == 3){
+		print SALIDA "Desde $entidad2 hacia $entidad1\t\t$bal{$entidad2}\n";
+		print SALIDA "Balance POSITIVO para $entidad2\t\t".($bal{$entidad1} - $bal{$entidad2})."\n" if ($bal{$entidad1} > $bal{$entidad2});
+		print SALIDA "Balance POSITIVO para $entidad1\t\t".($bal{$entidad2} - $bal{$entidad1})."\n" if ($bal{$entidad2} > $bal{$entidad1});
+	}
 		
-	
 }
 #############################################################################
 
 ############################# RANKINGS #################################
 sub rankearIngresos{
-	print GREEN BOLD,"Ranking TOP 3 INGRESOS\n\n", RESET;
-	print GREEN,"Entidad\t\t\tImporte Total\n",RESET;
-	#@opciones = opciones(3);
+	@opciones = opciones(3);
+	open(SALIDA, ">$opciones[2]") or die "NO SE PUEDE ABRIR $opciones[2]\n" if ($opciones[1] == 2 || $opciones[1] == 3);
+
+	if ($opciones[1] == 2 || $opciones[1] == 3){
+		print GREEN BOLD,"Ranking TOP 3 INGRESOS\n\n", RESET;
+		print GREEN,"Entidad\t\t\tImporte Total\n",RESET;
+	}
+	if ($opciones[1] == 1 || $opciones[1] == 3){
+		print SALIDA "Ranking TOP 3 INGRESOS\n\n";
+		print SALIDA "Entidad\t\t\tImporte Total\n";
+	}
+
+
 	my @listaHash = keys(%hashFiles);
 	my $i = 0;
 	my %rank;
@@ -226,16 +293,31 @@ sub rankearIngresos{
 	}
 	my $cuenta = 0;
 	foreach my $name (sort { $rank{$b} <=> $rank{$a} } keys %rank) {
-    	printf "$name\t\t\t$rank{$name}\n" if $cuenta < 3;
+    	if ($opciones[1] == 2 || $opciones[1] == 3){
+    		printf "$name\t\t\t$rank{$name}\n" if $cuenta < 3;
+    	}
+    	if ($opciones[1] == 1 || $opciones[1] == 3){
+    		printf SALIDA "$name\t\t\t$rank{$name}\n" if $cuenta < 3;
+    	}
     	$cuenta ++;
 	}
+	close(SALIDA);
 }
 
 sub rankearEgresos{
-	print GREEN BOLD,"Ranking TOP 3 EGRESOS\n\n", RESET;
-	print GREEN,"Entidad\t\t\tImporte Total\n",RESET;
+	@opciones = opciones(3);
+	open(SALIDA, ">$opciones[2]") or die "NO SE PUEDE ABRIR $opciones[2]\n" if ($opciones[1] == 2 || $opciones[1] == 3);
+
+	if ($opciones[1] == 2 || $opciones[1] == 3){
+		print GREEN BOLD,"Ranking TOP 3 EGRESOS\n\n", RESET;
+		print GREEN,"Entidad\t\t\tImporte Total\n",RESET;
+	}
+	if ($opciones[1] == 1 || $opciones[1] == 3){
+		print SALIDA "Ranking TOP 3 EGRESOS\n\n";
+		print SALIDA "Entidad\t\t\tImporte Total\n";
+	}
 	
-	#@opciones = opciones(3);
+
 	my @listaHash = keys(%hashFiles);
 	my $i = 0;
 	my %rank;
@@ -254,9 +336,15 @@ sub rankearEgresos{
 	}
 	my $cuenta = 0;
 	foreach my $name (sort { $rank{$b} <=> $rank{$a} } keys %rank) {
-    	printf "$name\t\t\t$rank{$name}\n" if $cuenta < 3;
+    	if ($opciones[1] == 2 || $opciones[1] == 3){
+    		printf "$name\t\t\t$rank{$name}\n" if $cuenta < 3;
+    	}
+    	if ($opciones[1] == 1 || $opciones[1] == 3){
+    		printf SALIDA "$name\t\t\t$rank{$name}\n" if $cuenta < 3;
+    	}
     	$cuenta ++;
 	}
+	close(SALIDA);
 }
 
 ##############################################################################

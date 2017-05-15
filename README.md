@@ -14,6 +14,6 @@
 5- Seguir las instrucciones
 
 6- Una vez finalizado, iniciarlo:
-		. ./inicializador.sh
+		. ./inicializador.sh o source ./inicializador.sh
 
 7- Seguir las instrucciones
