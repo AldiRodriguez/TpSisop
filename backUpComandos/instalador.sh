@@ -451,40 +451,41 @@ prepararInstalacion(){
 
 estaCorrectoArchivo(){
 	local archivo="$1"
-	# Verifico si es .sh
 	if [ `echo "$archivo" | sed 's-^[^_]*.sh-true-'` == "true" ]; then
-			WHEN=`date "+%Y/%m/%d %T"`
-			WHO=$USER
-			echo -e "$WHEN - $WHO - Arhivo correcto: $archivo" >> $LOGFILE
+	    	WHEN=`date "+%Y/%m/%d %T"`
+	    	WHO=$USER
+	    	echo -e "$WHEN - $WHO - Arhivo correcto: $archivo" >> $LOGFILE
 		echo "true"
-	# Verifico si es .pl
 	elif [ `echo "$archivo" | sed 's-^[^_]*.pl-true-'` = "true" ]; then
-			WHEN=`date "+%Y/%m/%d %T"`
-			WHO=$USER
-			echo -e "$WHEN - $WHO - Arhivo correcto: $archivo" >> $LOGFILE
+	    	WHEN=`date "+%Y/%m/%d %T"`
+	    	WHO=$USER
+	    	echo -e "$WHEN - $WHO - Arhivo correcto: $archivo" >> $LOGFILE
 		echo "true"
-
 	else
+	    	WHEN=`date "+%Y/%m/%d %T"`
+	    	WHO=$USER
+	    	echo -e "$WHEN - $WHO - Arhivo incorrecto: $archivo" >> $LOGFILE 
 		echo "false"
 	fi
 }
 
 moverABin(){
-	# leo los archivos del directorio actual y si muevo los comandos
+	# Detecto si existe novedad y proceso Validacion & Mov
 	for archivo in $( ls )
-	do
-		WHEN=`date "+%Y/%m/%d %T"`
-		WHO=$USER
-		echo -e "$WHEN - $WHO - Info - Archivo leido: $archivo" >> $LOGFILE
+	do	
+    	WHEN=`date "+%Y/%m/%d %T"`
+    	WHO=$USER
+    	echo -e "$WHEN - $WHO - Info - Archivo leido: $archivo" >> $LOGFILE
 
-		# Verifico que corresponda a un archivo de comandos
+		# Verifico el archivo de  Novedad	
 		statusArchivoCorrecto=$(estaCorrectoArchivo $archivo)
 
+		# Segun el resultado de la validacion, muevo para Aceptados o Des.
 		if [ "$statusArchivoCorrecto" == "true" ]; then
 			mv $archivo "$DIRBIN"
-			WHEN=`date "+%Y/%m/%d %T"`
-			WHO=$USER
-			echo -e "$WHEN - $WHO - Info - Archivo: $archivo movido a $DIRBIN" >> $LOGFILE
+	    	WHEN=`date "+%Y/%m/%d %T"`
+    		WHO=$USER
+    		echo -e "$WHEN - $WHO - Info - Archivo: $archivo movido a $DIRBIN" >> $LOGFILE
 
 		fi
 	done
