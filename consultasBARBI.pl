@@ -239,7 +239,7 @@ sub listarPorEntidadOrigen{
 
 			}
 		}
-	close OUTPUT;	
+	close (OUTPUT);	
 	}
 
 };
