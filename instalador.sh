@@ -416,6 +416,7 @@ grabarArchConf(){
 	echo "DIRLOG=$DIRLOG=$USR=$FECHA" >> "$ARCHCONF"
 	echo "ARCHCONF=$ARCHCONF=$USR=$FECHA" >> "$ARCHCONF"
 	echo "PIDDEM=0=$USR=$FECHA" >> "$ARCHCONF"
+	echo "PIDACEP=0=$USR=$FECHA" >> "$ARCHCONF"
 
 }
 

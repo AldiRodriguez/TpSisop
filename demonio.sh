@@ -24,8 +24,6 @@ LOGFILE="$DIRLOG/ini.log"
 ############################# PROCEDIMIENTOS #################################
 
 
-
-
 estaCorrectoArchivoNovedad() {
 
 	local archivoVerif="$1"
@@ -104,7 +102,7 @@ moverArchivoRejectado(){
 	# Muevo
 	mv "$GRUPO$DIRNOV/$archivoMov" "$GRUPO$DIRREJ" 
 
-    	echo -e "$WHEN - $WHO - Demonio - Info - Archivo moviod a carpeta de Rechazados" >> $LOGFILE
+    	echo -e "$WHEN - $WHO - Demonio - Error - Archivo moviod a carpeta de Rechazados" >> $LOGFILE
 }
 
 
@@ -122,6 +120,34 @@ moverArchivoAceptado(){
     	echo -e "$WHEN - $WHO - Demonio - Info - Archivo moviod a carpeta de aceptados" >> $LOGFILE
 }
 
+
+grabarPIDValidadorAceptados(){
+
+	PID="$1"
+	FECHA=`date "+%d/%m/%Y %H:%M"`
+	USR="$USER"
+
+	RECORD_NEW_PID_ACEPTADOS="PIDACEP=$PID=$USR="
+
+	# Actualizo PID
+	sed -i "s/PIDACEP=[0-9].*/${RECORD_NEW_PID_ACEPTADOS}/g" $ARCHCONF 
+
+}
+
+
+estaValidadorAceptadosCorriendo(){
+
+	# Busco ultomp PID utilizado
+	lastPID=`grep PIDACEP $ARCHCONF | cut -d'=' -f2`
+
+	# Valido que este activo el Ultimo PID
+	statusProc=`ps ax | grep -c "^\s*$lastPID"` #&> /dev/null
+	if [ $statusProc -eq 0 ]; then
+		echo "false"
+		exit
+	fi
+	echo "true"
+}
 
 
 ##############################################################################
@@ -149,15 +175,17 @@ do
 
 	IFS='
 	'
-	# Detecto si existe novedad y proceso Validacion & Mov
+	# -----------------------------------------------------
+	# Detecto Novedades: Valido & Muevo
+	# -----------------------------------------------------
 	for archivo in $( ls "$GRUPO$DIRNOV")
 	do	
-		echo "-------------------------"	
-		echo "Nombre archivo: $archivo"		
-		echo "-------------------------"
+		echo "------------------------------"
+		echo "Novedad detectada - Nombre archivo: $archivo"		
+		echo "------------------------------"
 	    	WHEN=`date "+%Y/%m/%d %T"`
 	    	WHO=$USER
-	    	echo -e "$WHEN - $WHO - Demonio - Info - Archivo leido: $archivo" >> $LOGFILE
+	    	echo -e "$WHEN - $WHO - Demonio - Info - Archivo con novedad detectado: $archivo" >> $LOGFILE
 
 		# Verifico el archivo de  Novedad	
 		statusArchivoNovCorrecto=$(estaCorrectoArchivoNovedad $archivo)
@@ -170,7 +198,33 @@ do
 			echo "-- Reject --"
 			moverArchivoRejectado $archivo
 		fi
-	done			
+	done		
+		
+	# -----------------------------------------------------
+	# Detecto Aceptados: Invoco validacion aceptados si corresponde
+	# -----------------------------------------------------
+	cantidad=$( ls  -A1 "$GRUPO$DIRACE" | wc -l )
+	if [ "$cantidad" -gt 0 ]; then
+	
+		estatValidAceptCorriendo=$(estaValidadorAceptadosCorriendo)
+
+		if [ "$estatValidAceptCorriendo" == "true" ]; then
+			echo "Invocación pospuesta para el siguiente ciclo"
+		    	WHEN=`date "+%Y/%m/%d %T"`
+		    	WHO=$USER
+		    	echo -e "$WHEN - $WHO - Procesamiento de aceptados - Info - Invocación pospuesta para el siguiente ciclo." >> $LOGFILE
+
+		else
+			echo "Invoco validacion de aceptados"
+		    	WHEN=`date "+%Y/%m/%d %T"`
+		    	WHO=$USER
+		    	echo -e "$WHEN - $WHO - Procesamiento de aceptados - Info - Archivo de novedad aceptado fue detectado." >> $LOGFILE
+			#$GRUPO$DIRBIN/validacionAceptados.sh &
+			./validacionAceptados.sh &
+			PIDACEPT=$!
+			grabarPIDValidadorAceptados $PIDACEPT
+		fi
+	fi
 		
 	# Duracion Ciclo
 	sleep 5
@@ -179,6 +233,8 @@ do
 	cicle=$(( cicle + 1 ))
 
 done
+
+}
 
 
 
