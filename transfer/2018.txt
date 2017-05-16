@@ -1,3 +1,4 @@
-hola1;hsbc;hola3;frances;hola5;hola6;200;hola8;hola9;hola10
+hola;hsbc;cot222;bbva;cot229;20170512;123;pendiente;2459222222222222222;3333333333333333000
 hola;pata;hola;hsbc;hola;hola;20000;hola;hola;hola
-hola;bbva;hola;frances;hola;hola;140;hola;hola;hola
+hola;frances;cot23;bbva;cot22;20180223;500;pendiente;2222222222222222222;3333333333333333333
+

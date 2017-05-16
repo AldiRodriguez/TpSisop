@@ -441,7 +441,6 @@ sub listarSinFiltro{
 sub balancearEntidad{
 	my @entidades = @_;
 	@opciones = opciones(2);
-	print $opciones[2];
 	open(SALIDA, ">$opciones[2]") or die "NO SE PUEDE ABRIR $opciones[2]\n" if ($opciones[1] == 2 || $opciones[1] == 3);
 	my @listaHash = keys(%hashFiles);
 	my $i = 0;
@@ -464,10 +463,10 @@ sub balancearEntidad{
 		$i++;
 	}
 	my $entidad = pop @entidades;
-	if ($opciones[1] == 2 || $opciones[1] == 3){
+	if ($opciones[1] == 1 || $opciones[1] == 3){
 		print BLUE BOLD, "Balance de entidades\n\n", RESET;
 	}
-	if ($opciones[1] == 1 || $opciones[1] == 3){
+	if ($opciones[1] == 2 || $opciones[1] == 3){
 		print SALIDA "Balance de entidades\n\n";
 	}
 
@@ -475,7 +474,7 @@ sub balancearEntidad{
 		if (exists $hacia{$entidad} || exists $desde{$entidad}){
 			$positivo = $hacia{$entidad};
 			$negativo = $desde{$entidad};
-			if ($opciones[1] == 2 || $opciones[1] == 3){
+			if ($opciones[1] == 1 || $opciones[1] == 3){
 				print "Desde $entidad\t\t\t\t$negativo\t\t hacia otras entidades\n";
 				print "Hacia $entidad\t\t\t\t$positivo\t\t desde otras entidades\n";
 				print "Balance NEGATIVO para $entidad" if ($negativo > $positivo);
@@ -484,7 +483,7 @@ sub balancearEntidad{
 				print BOLD RED,"  \t$total\n\n",RESET if ($total<0);
 				print BOLD GREEN,"  \t$total\n\n",RESET if ($total>0);
 			}
-			if ($opciones[1] == 1 || $opciones[1] == 3){
+			if ($opciones[1] == 2 || $opciones[1] == 3){
 				print SALIDA "Desde $entidad\t\t\t\t$negativo\t\t hacia otras entidades\n";
 				print SALIDA "Hacia $entidad\t\t\t\t$positivo\t\t desde otras entidades\n";
 				print SALIDA "Balance NEGATIVO para $entidad" if ($negativo > $positivo);
@@ -586,8 +585,8 @@ sub balancerEntreEntidades{
 	}
 	if ($opciones[1] == 1 || $opciones[1] == 3){
 		print BOLD GREEN,"Desde $entidad2 hacia $entidad1\t\t$bal{$entidad2}\n";
-		print "Balance POSITIVO para $entidad2\t\t".($bal{$entidad1} - $bal{$entidad2})."\n" if ($bal{$entidad1} > $bal{$entidad2});
-		print "Balance POSITIVO para $entidad1\t\t".($bal{$entidad2} - $bal{$entidad1})."\n" if ($bal{$entidad2} > $bal{$entidad1});	
+		print "Balance POSITIVO para $entidad2\t\t".($bal{$entidad1} - $bal{$entidad2})."\n", RESET if ($bal{$entidad1} > $bal{$entidad2});
+		print "Balance POSITIVO para $entidad1\t\t".($bal{$entidad2} - $bal{$entidad1})."\n", RESET if ($bal{$entidad2} > $bal{$entidad1});	
 	}
 	if ($opciones[1] == 2 || $opciones[1] == 3){
 		print SALIDA "Desde $entidad2 hacia $entidad1\t\t$bal{$entidad2}\n";
@@ -602,12 +601,11 @@ sub balancerEntreEntidades{
 sub rankearIngresos{
 	@opciones = opciones(3);
 	open(SALIDA, ">$opciones[2]") or die "NO SE PUEDE ABRIR $opciones[2]\n" if ($opciones[1] == 2 || $opciones[1] == 3);
-
-	if ($opciones[1] == 2 || $opciones[1] == 3){
+	if ($opciones[1] == 1 || $opciones[1] == 3){
 		print GREEN BOLD,"Ranking TOP 3 INGRESOS\n\n", RESET;
 		print GREEN,"Entidad\t\t\tImporte Total\n",RESET;
 	}
-	if ($opciones[1] == 1 || $opciones[1] == 3){
+	if ($opciones[1] == 2 || $opciones[1] == 3){
 		print SALIDA "Ranking TOP 3 INGRESOS\n\n";
 		print SALIDA "Entidad\t\t\tImporte Total\n";
 	}
@@ -631,10 +629,10 @@ sub rankearIngresos{
 	}
 	my $cuenta = 0;
 	foreach my $name (sort { $rank{$b} <=> $rank{$a} } keys %rank) {
-    	if ($opciones[1] == 2 || $opciones[1] == 3){
+    	if ($opciones[1] == 1 || $opciones[1] == 3){
     		printf "$name\t\t\t$rank{$name}\n" if $cuenta < 3;
     	}
-    	if ($opciones[1] == 1 || $opciones[1] == 3){
+    	if ($opciones[1] == 2 || $opciones[1] == 3){
     		printf SALIDA "$name\t\t\t$rank{$name}\n" if $cuenta < 3;
     	}
     	$cuenta ++;
@@ -646,11 +644,11 @@ sub rankearEgresos{
 	@opciones = opciones(3);
 	open(SALIDA, ">$opciones[2]") or die "NO SE PUEDE ABRIR $opciones[2]\n" if ($opciones[1] == 2 || $opciones[1] == 3);
 
-	if ($opciones[1] == 2 || $opciones[1] == 3){
+	if ($opciones[1] == 1 || $opciones[1] == 3){
 		print GREEN BOLD,"Ranking TOP 3 EGRESOS\n\n", RESET;
 		print GREEN,"Entidad\t\t\tImporte Total\n",RESET;
 	}
-	if ($opciones[1] == 1 || $opciones[1] == 3){
+	if ($opciones[1] == 2 || $opciones[1] == 3){
 		print SALIDA "Ranking TOP 3 EGRESOS\n\n";
 		print SALIDA "Entidad\t\t\tImporte Total\n";
 	}
@@ -674,10 +672,10 @@ sub rankearEgresos{
 	}
 	my $cuenta = 0;
 	foreach my $name (sort { $rank{$b} <=> $rank{$a} } keys %rank) {
-    	if ($opciones[1] == 2 || $opciones[1] == 3){
+    	if ($opciones[1] == 1 || $opciones[1] == 3){
     		printf "$name\t\t\t$rank{$name}\n" if $cuenta < 3;
     	}
-    	if ($opciones[1] == 1 || $opciones[1] == 3){
+    	if ($opciones[1] == 2 || $opciones[1] == 3){
     		printf SALIDA "$name\t\t\t$rank{$name}\n" if $cuenta < 3;
     	}
     	$cuenta ++;
