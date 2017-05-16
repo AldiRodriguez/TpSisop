@@ -95,7 +95,7 @@ grabarPIDDemonio(){
 
 echo "-------------------------------------"
 echo "PRE CONDICIONES"
-echo "-------------------"
+echo "-------------------------------------"
 statPreCond=$(verificaPreCondStartDeamon)
 if [ "$statPreCond" != "true" ]; then
 	echo "    No cumple PRE CONDICIONES para iniciar Deamon. Leer Log para mas informacion"
