@@ -449,27 +449,20 @@ prepararInstalacion(){
 
 }
 
-estaCorrectoArchivo(){
+esArchivoComando(){
 	local archivo="$1"
-	# Verifico si es .sh
-	if [ `echo "$archivo" | sed 's-^[^_]*.sh-true-'` == "true" ]; then
-			WHEN=`date "+%Y/%m/%d %T"`
-			WHO=$USER
-			echo -e "$WHEN - $WHO - Arhivo correcto: $archivo" >> $LOGFILE
-		echo "true"
-	# Verifico si es .pl
-	elif [ `echo "$archivo" | sed 's-^[^_]*.pl-true-'` = "true" ]; then
-			WHEN=`date "+%Y/%m/%d %T"`
-			WHO=$USER
-			echo -e "$WHEN - $WHO - Arhivo correcto: $archivo" >> $LOGFILE
-		echo "true"
-
-	else
-		echo "false"
-	fi
+	archivosRequeridos=("instalador.sh" "consultas.pl" "demonio.sh" "inicializador.sh" "start.sh" "stop.sh")
+	encontrado="false"
+	for comando in ${!archivosRequeridos[*]}
+	do
+		if [ "$archivo" == ${archivosRequeridos[$comando]} ]; then
+			encontrado="true"
+		fi
+	done
+	echo $encontrado
 }
 
-moverABin(){
+copiarABin(){
 	# leo los archivos del directorio actual y si muevo los comandos
 	for archivo in $( ls )
 	do
@@ -478,13 +471,13 @@ moverABin(){
 		echo -e "$WHEN - $WHO - Info - Archivo leido: $archivo" >> $LOGFILE
 
 		# Verifico que corresponda a un archivo de comandos
-		statusArchivoCorrecto=$(estaCorrectoArchivo $archivo)
+		statusArchivoCorrecto=$(esArchivoComando $archivo)
 
 		if [ "$statusArchivoCorrecto" == "true" ]; then
-			mv $archivo "$DIRBIN"
+			cp $archivo "$DIRBIN"
 			WHEN=`date "+%Y/%m/%d %T"`
 			WHO=$USER
-			echo -e "$WHEN - $WHO - Info - Archivo: $archivo movido a $DIRBIN" >> $LOGFILE
+			echo -e "$WHEN - $WHO - Info - Archivo: $archivo copiado a $DIRBIN" >> $LOGFILE
 
 		fi
 	done
@@ -533,7 +526,7 @@ if [ "$1" = "-i" ]; then
 			echo -e "$WHEN - $WHO - instalador - Instalando sistema... - Info " >> $LOGFILE
 		definirNombresDirectorios
 		grabarArchConf
-		moverABin
+		copiarABin
 
 	else
 		echo 

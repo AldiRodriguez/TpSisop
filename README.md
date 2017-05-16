@@ -31,7 +31,7 @@ chmod +x instalador.sh
 ./instalador -i
 ```
 
-Al ejecutarlo, se pedirá que ingrese los nombres de los directorios. Siga las instrucciones y complete la instalacion
+Al ejecutarlo, se pedirá que ingrese los nombres de los directorios. Si no ingresa ninguno, se tomaran los nombres por default. Siga las instrucciones y complete la instalacion
 
 5- Una vez finalizado, iniciarlo:
 
