@@ -452,7 +452,7 @@ prepararInstalacion(){
 
 esArchivoComando(){
 	local archivo="$1"
-	archivosRequeridos=("instalador.sh" "consultas.pl" "demonio.sh" "inicializador.sh" "start.sh" "stop.sh")
+	archivosRequeridos=("instalador.sh" "consultas.pl" "demonio.sh" "inicializador.sh" "start.sh" "stop.sh" "validacionAceptados.sh")
 	encontrado="false"
 	for comando in ${!archivosRequeridos[*]}
 	do

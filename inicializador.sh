@@ -130,7 +130,7 @@ elegirOpcion(){
       		echo -e "$WHEN - $WHO - inicializador - Info - ¿Desea efectuar la activación de Demonep? Si – No: $option" >> $LOGFILE
     	
 		if [ "$option" == "No" ] ; then
-	        	echo "Para ejecutar el demonio Demonio puede ejecutar el siguiente comando: ./demonios.sh &"
+	        	echo "Para ejecutar el demonio Demonio puede ejecutar el siguiente comando: ./start.sh"
        			return 0
 	    	fi
 
@@ -160,6 +160,7 @@ if [ "$inicializado" == "true" ] ; then
     WHEN=`date "+%Y/%m/%d %T"`
     WHO=$USER
     echo -e "$WHEN - $WHO - inicializador - Alerta - El ambiente ya fue inicializado" >> $LOGFILE
+    sleep 5    
     exit 0
 else 
     echo "Continua, No fue inicializado el ambiente."
@@ -201,5 +202,6 @@ echo -e "$WHEN - $WHO - inicializador - Info - Ha finalizado la inicializacion" 
 # Elige opcion de ejecutar deoamon antes de irse
 elegirOpcion
 
+cd ..
 
 #############################################################################
