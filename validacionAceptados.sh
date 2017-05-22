@@ -26,17 +26,84 @@ LOGFILE="$DIRLOG/ini.log"
 ############################# PROCEDIMIENTOS #################################
 
 
-estaCorrectoArchivoNovedadAceptada() {
+estaArchivoAceptCorrecto() {
 
 	local archivoVerif="$1"
 
-	echo "true"
-#
- #   	WHEN=`date "+%Y/%m/%d %T"`
-#    	WHO=$USER
-#    	echo -e "$WHEN - $WHO - Procesamiento de aceptados - Info - Poner motivo Acept/reject" >> $LOGFILE
+	# Parseo info del archivo
+	Banco="$(echo $archivoVerif | cut -d'_' -f 1 )"
+	fecha="$(echo $archivoVerif | cut -d'_' -f 2 | cut -d'.' -f 1)"
+	outputDir="$GRUPO""transfer"
+	outputFile="$outputDir""/$fecha"".txt"
+	inputFile="$GRUPO$DIRACE/$archivoVerif"
 
+	# -------------------------------------------------
+	# Valido pre-condiciones a nivel de archivo
+	# -------------------------------------------------
+
+	# Valido que No se debe procesar más de una vez un mismo archivo
+	if [ -f "$outputFile" ]; then
+		resutltGrep="`grep -c "^$archivoVerif;.*" "$outputFile"`"
+
+		if [ "$resutltGrep" -gt 0 ]; then 
+		    	WHEN=`date "+%Y/%m/%d %T"`
+		    	WHO=$USER
+		    	echo -e "$WHEN - $WHO - Procesamiento de aceptados - Error - Arhivo rechazado, fue procesado previamente: $archivoVerif" >> $LOGFILE
+			echo "false"
+		fi
+	fi
+
+
+	# Se considera que un archivo es el mismo si posee el mismo filename
+
+	# No se debe procesar un archivo si la cantidad de registros leídos es diferente a la cantidad total informada en el campo 1 del registro de cabecera
+	
+	# No se debe procesar un archivo si la sumatoria del campo importe es diferente a la monto total informado en el campo 2 del registro de cabecera
+
+
+	# -------------------------------------------------
+	# Valido pre-condiciones a nivel de registro
+	# -------------------------------------------------
+	OLDIFS=$IFS
+	IFS=$'\r'
+	for A in $(cat $inputFile ) ; do
+
+		FECHA_TRANS="$(echo $A | cut -d';' -f 1 )"
+		IMPORTE="$(echo $A | cut -d';' -f 2 )"
+		ESTADO="$(echo $A | cut -d';' -f 3 )"
+
+		CBU_ORIGEN="$(echo $A | cut -d';' -f 4 )"
+		CODIGO_ENTIDAD_ORIGEN=$(echo $CBU_ORIGEN | cut -c1-3)
+		ENTIDAD_ORIGEN=$(grep "^.*;$CODIGO_ENTIDAD_ORIGEN;.*" "$GRUPO$DIRMA/maestro.csv") 
+		ENTIDAD_ORIGEN="$(echo $ENTIDAD_ORIGEN | cut -d';' -f 1 )"
+
+		CBU_DESTINO="$(echo $A | cut -d';' -f 5 )"
+		CODIGO_ENTIDAD_DESTINO=$(echo $CBU_DESTINO | cut -c1-3)
+		ENTIDAD_DESTINO=$(grep "^.*;$CODIGO_ENTIDAD_DESTINO;.*" "$GRUPO$DIRMA/maestro.csv") 
+		ENTIDAD_DESTINO="$(echo $ENTIDAD_DESTINO | cut -d';' -f 1 )"
+
+
+		# Guardo registro de salida en el archivo
+		# Validar que el archivo sea texto (es Binario)
+#		if [ ! `file "./$archivoVerif" | grep text` ]; then
+#		    	WHEN=`date "+%Y/%m/%d %T"`
+#		    	WHO=$USER
+#		    	echo -e "$WHEN - $WHO - Demonio - Error - Arhivo rechazado, no es regular de texto: $archivoVerif" >> $LOGFILE
+#			echo "false"
+#
+#		# Validar que el archivo no este vacio
+#		elif [ ! -s "$archivoVerif" ]; then
+#		    	WHEN=`date "+%Y/%m/%d %T"`
+#		    	WHO=$USER
+#		    	echo -e "$WHEN - $WHO - Demonio - Error - Arhivo rechazado, esta vacio: $archivoVerif" >> $LOGFILE
+#			echo "false"
+	done
+	IFS=$OLDIFS
+
+	echo "true"
 }
+
+
 
 
 procesarAceptados() {
@@ -46,7 +113,7 @@ procesarAceptados() {
 	# Parseo info del archivo
 	Banco="$(echo $archivoVerif | cut -d'_' -f 1 )"
 	fecha="$(echo $archivoVerif | cut -d'_' -f 2 | cut -d'.' -f 1)"
-	outputDir="$GRUPO""Transfer"
+	outputDir="$GRUPO""transfer"
 	outputFile="$outputDir""/$fecha"".txt"
 	inputFile="$GRUPO$DIRACE/$archivoVerif"
 
@@ -62,6 +129,9 @@ procesarAceptados() {
 	if [ ! -f "$outputFile" ]; then
 		if [ ! -d $outputDir ]; then 
 			mkdir $outputDir
+			mkdir "$outputDir/listados"
+			mkdir "$outputDir/balances"
+			mkdir "$outputDir/rankings"
 		fi
 		touch $outputFile
     		if [ ! -f "$outputFile" ]; then
@@ -144,7 +214,7 @@ moverArchivoProcesados(){
 	archivoMov="$1"
 
 	# Valido que exista el dir de procesados
-	procesadosDir="$GRUPO""Procesados"
+	procesadosDir="$GRUPO""procesados"
 	if [ ! -d $procesadosDir ]; then 
 		mkdir $procesadosDir
 	fi
@@ -186,18 +256,25 @@ do
 
 
 	# Verifico el archivo de  Novedad	
-	estaArchivoAceptCorrecto=$(estaCorrectoArchivoNovedadAceptada "$archivo")
+	estaCorrecto=$(estaArchivoAceptCorrecto "$archivo")
 
 	# Segun el resultado de la validacion, muevo para Aceptados o Des.
-	if [ "$estaArchivoAceptCorrecto" == "true" ]; then
+	echo "-----------------"
+	echo "EstaCorrecto: $estaCorrecto"	
+	echo "-----------------"
+	if [ "$estaCorrecto" == "true" ]; then
 		echo "-- Proceso archivo --"
-		resul= $(procesarAceptados "$archivo")
-		if [ "$estaArchivoAceptCorrecto" == "true" ]; then
+		resul=$(procesarAceptados "$archivo")
+		if [ "$resul" == "true" ]; then
+		    	WHEN=`date "+%Y/%m/%d %T"`
+		    	WHO=$USER
+		    	echo -e "$WHEN - $WHO - Procesamiento de aceptados - Info - Archivo rechazado por pre requisitos de validacion de aceptados: $archivoVerif" >> $LOGFILE
 			moverArchivoProcesados $archivo
 		else 
   		  	WHEN=`date "+%Y/%m/%d %T"`
     			WHO=$USER
-    			echo -e "$WHEN - $WHO - Procesamiento de aceptados - Error - Procesamiento invalido: $archivo" >> $LOGFILE			
+    			echo -e "$WHEN - $WHO - Procesamiento de aceptados - Error - Procesamiento invalido: $archivo" >> $LOGFILE	
+			moverArchivoRejectado "$archivo"
 		fi
 	else 
 		echo "-- Reject --"
