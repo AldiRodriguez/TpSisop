@@ -1,1 +1,0 @@
-print "soy un script de perl! En serio!\n"

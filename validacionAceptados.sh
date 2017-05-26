@@ -29,7 +29,7 @@ LOGFILE="$DIRLOG/ini.log"
 estaArchivoAceptCorrecto() {
 
 	local archivoVerif="$1"
-
+	local validado="true"
 	# Parseo info del archivo
 	Banco="$(echo $archivoVerif | cut -d'_' -f 1 )"
 	fecha="$(echo $archivoVerif | cut -d'_' -f 2 | cut -d'.' -f 1)"
@@ -49,7 +49,7 @@ estaArchivoAceptCorrecto() {
 		    	WHEN=`date "+%Y/%m/%d %T"`
 		    	WHO=$USER
 		    	echo -e "$WHEN - $WHO - Procesamiento de aceptados - Error - Arhivo rechazado, fue procesado previamente: $archivoVerif" >> $LOGFILE
-			echo "false"
+			validado="false"
 		fi
 	fi
 
@@ -57,16 +57,36 @@ estaArchivoAceptCorrecto() {
 	# Se considera que un archivo es el mismo si posee el mismo filename
 
 	# No se debe procesar un archivo si la cantidad de registros leídos es diferente a la cantidad total informada en el campo 1 del registro de cabecera
-	
-	# No se debe procesar un archivo si la sumatoria del campo importe es diferente a la monto total informado en el campo 2 del registro de cabecera
+	cantRegTotal=`sed -n '1p' "$inputFile" | sed 's/^\([^;]*\);.*/\1/g'`
+	cantReal=`wc -l < "$inputFile"`
+	cantReal=`echo "$cantReal - 1" | bc`
+	if [ ! "$cantReal" == "$cantRegTotal" ]; then
+		WHEN=`date "+%Y/%m/%d %T"`
+		    	WHO=$USER
+		    	echo -e "$WHEN - $WHO - Procesamiento de aceptados - Error - Arhivo rechazado, cantidad de campos inconcistente" >> $LOGFILE
+			validado="false"
+	fi
 
+	# No se debe procesar un archivo si la sumatoria del campo importe es diferente a la monto total informado en el campo 2 del registro de cabecera
+	importeTotal=`sed -n '1p' "$inputFile" | sed 's/^[^;]*;\(.*\)/\1/g'`
+	importeSuma=0
+	for line in $(tail -n +2 $inputFile ) ; do
+		importe=`echo "$line" | sed 's/^[^;]*;\([^;]*\);.*/\1/g'`
+		importeSuma=`echo "$importe + $importeSuma" | tr , . | bc`
+	done
+	if [ ! "$importeSuma" == "$importeTotal" ]; then
+		WHEN=`date "+%Y/%m/%d %T"`
+    	WHO=$USER
+    	echo -e "$WHEN - $WHO - Procesamiento de aceptados - Error - Arhivo rechazado, cantidad de campos inconcistente" >> $LOGFILE
+		validado="false"
+	fi
 
 	# -------------------------------------------------
 	# Valido pre-condiciones a nivel de registro
 	# -------------------------------------------------
 	OLDIFS=$IFS
 	IFS=$'\r'
-	for A in $(cat $inputFile ) ; do
+	for A in $(tail -n +2 $inputFile ) ; do
 
 		FECHA_TRANS="$(echo $A | cut -d';' -f 1 )"
 		IMPORTE="$(echo $A | cut -d';' -f 2 )"
@@ -100,7 +120,7 @@ estaArchivoAceptCorrecto() {
 	done
 	IFS=$OLDIFS
 
-	echo "true"
+	echo $validado
 }
 
 
