@@ -103,6 +103,69 @@ estaArchivoAceptCorrecto() {
 		ENTIDAD_DESTINO="$(echo $ENTIDAD_DESTINO | cut -d';' -f 1 )"
 
 
+		#FALTA VALIDAR FECHA
+
+		#CAMPO IMPORTE
+		if [ ! "$IMPORTE" ]; then
+			WHEN=`date "+%Y/%m/%d %T"`
+	    	WHO=$USER
+	    	echo -e "$WHEN - $WHO - Procesamiento de aceptados - Error - Arhivo rechazado, reg 2 no existe" >> $LOGFILE
+			validado="false"
+		fi
+		if [[ "$ESTADO" == "Pendiente"  &&  "$IMPORTE" -lt "0" ]]; then
+			WHEN=`date "+%Y/%m/%d %T"`
+	    	WHO=$USER
+	    	echo -e "$WHEN - $WHO - Procesamiento de aceptados - Error - Arhivo rechazado, importe <0 y estado pendiente" >> $LOGFILE
+			validado="false"
+		fi
+		if [[ "$ESTADO" == "Anulada"  &&  "$IMPORTE" -gt "0" ]]; then
+			WHEN=`date "+%Y/%m/%d %T"`
+	    	WHO=$USER
+	    	echo -e "$WHEN - $WHO - Procesamiento de aceptados - Error - Arhivo rechazado, importe <0 y estado pendiente" >> $LOGFILE
+			validado="false"
+		fi
+
+		#CAMPO ESTADO
+		if [[ "$ESTADO" != "Pendiente" && "$ESTADO" != "Anulada" ]]; then
+			WHEN=`date "+%Y/%m/%d %T"`
+	    	WHO=$USER
+	    	echo -e "$WHEN - $WHO - Procesamiento de aceptados - Error - Arhivo rechazado, reg estado mal" >> $LOGFILE
+			validado="false"
+		fi
+
+		#CAMPOS CBU
+		if [[ "$CBU_ORIGEN" -eq "$CBU_DESTINO" ]]; then
+			WHEN=`date "+%Y/%m/%d %T"`
+	    	WHO=$USER
+	    	echo -e "$WHEN - $WHO - Procesamiento de aceptados - Error - Arhivo rechazado, cbu iguales" >> $LOGFILE
+			validado="false"
+		fi
+		if [[ "${#CBU_ORIGEN}" -ne "22" ]]; then
+			WHEN=`date "+%Y/%m/%d %T"`
+	    	WHO=$USER
+	    	echo -e "$WHEN - $WHO - Procesamiento de aceptados - Error - Arhivo rechazado, cbu origen mal" >> $LOGFILE
+			validado="false"
+		fi
+		if [[ "${#CBU_DESTINO}" -ne "22" ]]; then
+			WHEN=`date "+%Y/%m/%d %T"`
+	    	WHO=$USER
+	    	echo -e "$WHEN - $WHO - Procesamiento de aceptados - Error - Arhivo rechazado, cbu origen mal" >> $LOGFILE
+			validado="false"
+		fi
+
+		#VALIDO QUE EXISTAN EN MAESTRO
+		if [ ! "$ENTIDAD_ORIGEN" ]; then
+			WHEN=`date "+%Y/%m/%d %T"`
+	    	WHO=$USER
+	    	echo -e "$WHEN - $WHO - Procesamiento de aceptados - Error - Arhivo rechazado, no existe ent origen" >> $LOGFILE
+			validado="false"
+		fi
+		if [ ! "$ENTIDAD_DESTINO" ]; then
+			WHEN=`date "+%Y/%m/%d %T"`
+	    	WHO=$USER
+	    	echo -e "$WHEN - $WHO - Procesamiento de aceptados - Error - Arhivo rechazado, no existe ent destino" >> $LOGFILE
+			validado="false"
+		fi
 		# Guardo registro de salida en el archivo
 		# Validar que el archivo sea texto (es Binario)
 #		if [ ! `file "./$archivoVerif" | grep text` ]; then
