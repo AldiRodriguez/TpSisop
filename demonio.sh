@@ -3,7 +3,7 @@
 ############################## CONSTANTES ###################################
 
 #Declaro el PATH donde se debe trabajar SIEMPRE
-GRUPO=`pwd`"/Grupo01/"
+#GRUPO=`pwd`"/Grupo01/"
 
 #Declaro subdirectorio dirconf (RESERVADO)
 DIRCONF="$GRUPO""dirconf/"
@@ -15,7 +15,7 @@ ARCHCONF="$DIRCONF""arch.conf"
 DIRLOG="$GRUPO""log/"
 
 #archivo de log
-LOGFILE="$DIRLOG/ini.log"
+LOGFILE="$DIRLOG""ini.log"
 
 
 
@@ -23,6 +23,18 @@ LOGFILE="$DIRLOG/ini.log"
 
 ############################# PROCEDIMIENTOS #################################
 
+grabarPIDDemonio(){
+
+  PID=$$
+  FECHA=`date "+%d/%m/%Y %H:%M"`
+  USR="$USER"
+
+  RECORD_NEW_PIDDEM="PIDDEM=$PID=$USR="
+
+  # Actualizo PID
+  sed -i "s/PIDDEM=[0-9].*/${RECORD_NEW_PIDDEM}/g" $ARCHCONF 
+
+}
 
 estaCorrectoArchivoNovedad() {
 
@@ -35,7 +47,7 @@ estaCorrectoArchivoNovedad() {
 	resultValData="$?"
 
 	
-	cd "$GRUPO$DIRNOV"
+	cd "$DIRNOV"
 
 	# Validar que el archivo sea texto (es Binario)
 	if [ ! `file "./$archivoVerif" | grep text` ]; then
@@ -80,7 +92,7 @@ estaCorrectoArchivoNovedad() {
 		echo "false"
 
 	# Valido que esta en el archivo maestro de entidades bancarias. 
-	elif [ "`grep -c "^${Banco};" "$GRUPO$DIRMA/maestro.csv"`" -eq "0" ]; then 
+	elif [ "`grep -c "^${Banco};" "$DIRMA/maestro.csv"`" -eq "0" ]; then 
 	    	WHEN=`date "+%Y/%m/%d %T"`
 	    	WHO=$USER
 	    	echo -e "$WHEN - $WHO - Demonio - Error - Arhivo rechazado, Entidad no existe en el maestro: $archivoVerif" >> $LOGFILE
@@ -100,7 +112,7 @@ moverArchivoRejectado(){
 	# Valido duplicados (preciso un numero sequancial para incrementar)
 
 	# Muevo
-	mv "$GRUPO$DIRNOV/$archivoMov" "$GRUPO$DIRREJ" 
+	mv "$DIRNOV/$archivoMov" "$DIRREJ" 
 
     	echo -e "$WHEN - $WHO - Demonio - Error - Archivo moviod a carpeta de Rechazados" >> $LOGFILE
 }
@@ -113,7 +125,7 @@ moverArchivoAceptado(){
 	# Valido duplicados (preciso un numero sequancial para incrementar)
 
 	# Muevo
-	mv "$GRUPO$DIRNOV/$archivoMov" "$GRUPO$DIRACE"  
+	mv "$DIRNOV/$archivoMov" "$DIRACE"  
 
     	WHEN=`date "+%Y/%m/%d %T"`
     	WHO=$USER
@@ -162,7 +174,7 @@ cicle=1
 pid=0
 seguir=1
 corte=1000
-	
+grabarPIDDemonio
 while [ $cicle > $corte ];
 do
 		
@@ -178,7 +190,7 @@ do
 	# -----------------------------------------------------
 	# Detecto Novedades: Valido & Muevo
 	# -----------------------------------------------------
-	for archivo in $( ls "$GRUPO$DIRNOV")
+	for archivo in $( ls "$DIRNOV")
 	do	
 		echo "------------------------------"
 		echo "Novedad detectada - Nombre archivo: $archivo"		
@@ -203,7 +215,7 @@ do
 	# -----------------------------------------------------
 	# Detecto Aceptados: Invoco validacion aceptados si corresponde
 	# -----------------------------------------------------
-	cantidad=$( ls  -A1 "$GRUPO$DIRACE" | wc -l )
+	cantidad=$( ls  -A1 "$DIRACE" | wc -l )
 	if [ "$cantidad" -gt 0 ]; then
 	
 		estatValidAceptCorriendo=$(estaValidadorAceptadosCorriendo)

@@ -120,6 +120,18 @@ verificarPermisos(){
     fi
 }
 
+grabarPIDDemonio(){
+
+  PID="$1"
+  FECHA=`date "+%d/%m/%Y %H:%M"`
+  USR="$USER"
+
+  RECORD_NEW_PIDDEM="PIDDEM=$PID=$USR="
+
+  # Actualizo PID
+  sed -i "s/PIDDEM=[0-9].*/${RECORD_NEW_PIDDEM}/g" $ARCHCONF 
+
+}
 elegirOpcion(){
 	option=""
 	while [ "$option" != "Si" ] ; do
@@ -140,9 +152,11 @@ elegirOpcion(){
 	done
 	
 	chmod +xr "$DIRBIN/demonio.sh"
-	source $DIRBIN/demonio.sh 
-	echo "Id de proceso del demonio: $!"
-  	WHEN=`date "+%Y/%m/%d %T"`
+	source $DIRBIN/demonio.sh
+  PID=$$
+  grabarPIDDemonio
+  echo "Id de proceso del demonio: $!"
+	WHEN=`date "+%Y/%m/%d %T"`
   	WHO=$USER
   	echo -e "$WHEN - $WHO - inicializador - Info - Id de proceso del demonio: $!" >> $LOGFILE
 }
