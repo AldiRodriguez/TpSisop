@@ -3,7 +3,7 @@
 ############################## CONSTANTES ###################################
 
 #Declaro el PATH donde se debe trabajar SIEMPRE
-#GRUPO=`pwd`"/Grupo01/"
+GRUPO=`pwd`"/Grupo01/"
 
 #Declaro subdirectorio dirconf (RESERVADO)
 DIRCONF="$GRUPO""dirconf/"
@@ -47,7 +47,7 @@ estaCorrectoArchivoNovedad() {
 	resultValData="$?"
 
 	
-	cd "$DIRNOV"
+	cd "$GRUPO$DIRNOV"
 
 	# Validar que el archivo sea texto (es Binario)
 	if [ ! `file "./$archivoVerif" | grep text` ]; then
@@ -92,7 +92,7 @@ estaCorrectoArchivoNovedad() {
 		echo "false"
 
 	# Valido que esta en el archivo maestro de entidades bancarias. 
-	elif [ "`grep -c "^${Banco};" "$DIRMA/maestro.csv"`" -eq "0" ]; then 
+	elif [ `grep -c "$Banco" "$GRUPO$DIRMA/maestro.csv"` -eq "0" ]; then 
 	    	WHEN=`date "+%Y/%m/%d %T"`
 	    	WHO=$USER
 	    	echo -e "$WHEN - $WHO - Demonio - Error - Arhivo rechazado, Entidad no existe en el maestro: $archivoVerif" >> $LOGFILE
@@ -112,7 +112,7 @@ moverArchivoRejectado(){
 	# Valido duplicados (preciso un numero sequancial para incrementar)
 
 	# Muevo
-	mv "$DIRNOV/$archivoMov" "$DIRREJ" 
+	mv "$GRUPO$DIRNOV/$archivoMov" "$GRUPO$DIRREJ" 
 
     	echo -e "$WHEN - $WHO - Demonio - Error - Archivo moviod a carpeta de Rechazados" >> $LOGFILE
 }
@@ -125,7 +125,7 @@ moverArchivoAceptado(){
 	# Valido duplicados (preciso un numero sequancial para incrementar)
 
 	# Muevo
-	mv "$DIRNOV/$archivoMov" "$DIRACE"  
+	mv "$GRUPO$DIRNOV/$archivoMov" "$GRUPO$DIRACE"  
 
     	WHEN=`date "+%Y/%m/%d %T"`
     	WHO=$USER
@@ -190,7 +190,7 @@ do
 	# -----------------------------------------------------
 	# Detecto Novedades: Valido & Muevo
 	# -----------------------------------------------------
-	for archivo in $( ls "$DIRNOV")
+	for archivo in $( ls "$GRUPO$DIRNOV")
 	do	
 		echo "------------------------------"
 		echo "Novedad detectada - Nombre archivo: $archivo"		
@@ -215,7 +215,7 @@ do
 	# -----------------------------------------------------
 	# Detecto Aceptados: Invoco validacion aceptados si corresponde
 	# -----------------------------------------------------
-	cantidad=$( ls  -A1 "$DIRACE" | wc -l )
+	cantidad=$( ls  -A1 "$GRUPO$DIRACE" | wc -l )
 	if [ "$cantidad" -gt 0 ]; then
 	
 		estatValidAceptCorriendo=$(estaValidadorAceptadosCorriendo)
