@@ -421,7 +421,7 @@ sub listarPorPendiente{
 	@opciones = opciones(1);
 	my @listaHash = keys(%hashFiles);
 	my $i = 0;
-	my $estado='pendiente';
+	my $estado='Pendiente';
 	my $total=0;
 	# Mostrar por pantalla
 	if ($opciones[1]==1 || $opciones[1]==3){
@@ -465,7 +465,8 @@ sub listarPorPendiente{
 	printf GREEN BOLD,"total general: $total\n",RESET;
 	printf BOLD BLUE,"____________________________________________________\n",RESET;
 
-	}else{
+	}
+	if ($opciones[1]==2 || $opciones[1]==3){
 		# Guardar en archivo
 		open (OUTPUT, ">$opciones[2]") or die "NO SE PUEDE ABRIR $opciones[2]\n";
 		printf OUTPUT "Listado por estado: $estado\n\n";
@@ -516,7 +517,7 @@ sub listarPorAnulada{
 	@opciones = opciones(1);
 	my @listaHash = keys(%hashFiles);
 	my $i = 0;
-	my $estado='anulada';
+	my $estado='Anulada';
 	# Mostrar por pantalla
 	if ($opciones[1]==1 || $opciones[1]==3){
 		print GREEN BOLD,"Listado por estado: $estado\n\n", RESET;
@@ -1173,7 +1174,8 @@ sub listarPorCbu{
 	printf GREEN BOLD,"Balance: $balance para la cuenta : $cbu\n",RESET;
 	printf BOLD BLUE,"____________________________________________________\n",RESET;
 
-	}else{
+	}
+	if ($opciones[1]==2 || $opciones[1]==3){
 		# Guardar en archivo
 		open (OUTPUT, ">$opciones[2]") or die "NO SE PUEDE ABRIR $opciones[2]\n";
 		print OUTPUT "Transferencias desde la cuenta: $cbu\n";
