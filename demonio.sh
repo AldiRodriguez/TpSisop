@@ -173,9 +173,8 @@ echo "-------------------------------------"
 cicle=1
 pid=0
 seguir=1
-corte=1000
 grabarPIDDemonio
-while [ $cicle > $corte ];
+while [ true ];
 do
 		
 	echo "--------------------"
