@@ -57,36 +57,36 @@ estaArchivoAceptCorrecto() {
 	# Se considera que un archivo es el mismo si posee el mismo filename
 
 	# No se debe procesar un archivo si la cantidad de registros leídos es diferente a la cantidad total informada en el campo 1 del registro de cabecera
-	cantRegTotal=`sed -n '1p' "$inputFile" | sed 's/^\([^;]*\);.*/\1/g'`
-	cantReal=`wc -l < "$inputFile"`
-	cantReal=`echo "$cantReal - 1" | bc`
-	if [ ! "$cantReal" == "$cantRegTotal" ]; then
-		WHEN=`date "+%Y/%m/%d %T"`
-		    	WHO=$USER
-		    	echo -e "$WHEN - $WHO - Procesamiento de aceptados - Error - Arhivo rechazado, cantidad de campos inconcistente" >> $LOGFILE
-			validado="false"
-	fi
+	#cantRegTotal=`sed -n '1p' "$inputFile" | sed 's/^\([^;]*\);.*/\1/g'`
+	#cantReal=`wc -l < "$inputFile"`
+	#cantReal=`echo "$cantReal - 1" | bc`
+	#if [ ! "$cantReal" == "$cantRegTotal" ]; then
+	#	WHEN=`date "+%Y/%m/%d %T"`
+	#	    	WHO=$USER
+	#	    	echo -e "$WHEN - $WHO - Procesamiento de aceptados - Error - Arhivo rechazado, cantidad de campos inconsistente" >> $LOGFILE
+	#		validado="true"
+	#fi
 
-	# No se debe procesar un archivo si la sumatoria del campo importe es diferente a la monto total informado en el campo 2 del registro de cabecera
-	importeTotal=`sed -n '1p' "$inputFile" | sed 's/^[^;]*;\(.*\)/\1/g'`
-	importeSuma=0
-	for line in $(tail -n +2 $inputFile ) ; do
-		importe=`echo "$line" | sed 's/^[^;]*;\([^;]*\);.*/\1/g'`
-		importeSuma=`echo "$importe + $importeSuma" | tr , . | bc`
-	done
-	if [ ! "$importeSuma" == "$importeTotal" ]; then
-		WHEN=`date "+%Y/%m/%d %T"`
-    	WHO=$USER
-    	echo -e "$WHEN - $WHO - Procesamiento de aceptados - Error - Arhivo rechazado, cantidad de campos inconcistente" >> $LOGFILE
-		validado="false"
-	fi
+	## No se debe procesar un archivo si la sumatoria del campo importe es diferente a la monto total informado en el campo 2 del registro de cabecera
+	#importeTotal=`sed -n '1p' "$inputFile" | sed 's/^[^;]*;\(.*\)/\1/g'`
+	#importeSuma=0
+	#for line in $(tail -n +2 $inputFile ) ; do
+	#	importe=`echo "$line" | sed 's/^[^;]*;\([^;]*\);.*/\1/g'`
+	#	importeSuma=`echo "$importe + $importeSuma" | tr , . | bc`
+	#done
+	#if [ ! "$importeSuma" == "$importeTotal" ]; then
+	#	WHEN=`date "+%Y/%m/%d %T"`
+    #	WHO=$USER
+    #	echo -e "$WHEN - $WHO - Procesamiento de aceptados - Error - Arhivo rechazado, cantidad de campos inconsistente" >> $LOGFILE
+	#	validado="true"
+	#fi
 
 	# -------------------------------------------------
 	# Valido pre-condiciones a nivel de registro
 	# -------------------------------------------------
 	OLDIFS=$IFS
 	IFS=$'\r'
-	for A in $(tail -n +2 $inputFile ) ; do
+	for A in $(cat $inputFile); do
 
 		FECHA_TRANS="$(echo $A | cut -d';' -f 1 )"
 		IMPORTE="$(echo $A | cut -d';' -f 2 )"
@@ -101,10 +101,16 @@ estaArchivoAceptCorrecto() {
 		CODIGO_ENTIDAD_DESTINO=$(echo $CBU_DESTINO | cut -c1-3)
 		ENTIDAD_DESTINO=$(grep "^.*;$CODIGO_ENTIDAD_DESTINO;.*" "$GRUPO$DIRMA/maestro.csv") 
 		ENTIDAD_DESTINO="$(echo $ENTIDAD_DESTINO | cut -d';' -f 1 )"
+		date "+%Y%m%d" -d $FECHA_TRANS > /dev/null  2>&1
+		resultValData="$?"
 
-
-		#FALTA VALIDAR FECHA
-
+		#Valido fecha calendario
+		if [ $resultValData -ne 0 ]; then
+	    	WHEN=`date "+%Y/%m/%d %T"`
+	    	WHO=$USER
+	    	echo -e "$WHEN - $WHO - Procesamiento de aceptados - Error - Arhivo rechazado, fecha: $FECHA_TRANS de archivo fuera de calendario" >> $LOGFILE
+			validado="false"
+		fi
 		#CAMPO IMPORTE
 		if [ ! "$IMPORTE" ]; then
 			WHEN=`date "+%Y/%m/%d %T"`
@@ -166,23 +172,9 @@ estaArchivoAceptCorrecto() {
 	    	echo -e "$WHEN - $WHO - Procesamiento de aceptados - Error - Arhivo rechazado, no existe ent destino" >> $LOGFILE
 			validado="false"
 		fi
-		# Guardo registro de salida en el archivo
-		# Validar que el archivo sea texto (es Binario)
-#		if [ ! `file "./$archivoVerif" | grep text` ]; then
-#		    	WHEN=`date "+%Y/%m/%d %T"`
-#		    	WHO=$USER
-#		    	echo -e "$WHEN - $WHO - Demonio - Error - Arhivo rechazado, no es regular de texto: $archivoVerif" >> $LOGFILE
-#			echo "false"
-#
-#		# Validar que el archivo no este vacio
-#		elif [ ! -s "$archivoVerif" ]; then
-#		    	WHEN=`date "+%Y/%m/%d %T"`
-#		    	WHO=$USER
-#		    	echo -e "$WHEN - $WHO - Demonio - Error - Arhivo rechazado, esta vacio: $archivoVerif" >> $LOGFILE
-#			echo "false"
+
 	done
 	IFS=$OLDIFS
-
 	echo $validado
 }
 
@@ -199,14 +191,6 @@ procesarAceptados() {
 	outputDir="$GRUPO""transfer"
 	outputFile="$outputDir""/$fecha"".txt"
 	inputFile="$GRUPO$DIRACE/$archivoVerif"
-
-#	echo "-----------------"
-#	echo "Archivo: $archivoVerif "
-#	echo "Entidad: $Banco"
-#	echo "Fecha: $fecha"
-#	echo "OutputFile: $outputFile"
-#	echo "Input FIle: $inputFile"
-#	echo "-----------------"
 
 	# Valido que exista el archivo donde guardar los registros, caso contrario lo creo
 	if [ ! -f "$outputFile" ]; then
@@ -252,19 +236,6 @@ procesarAceptados() {
 		ENTIDAD_DESTINO=$(grep "^.*;$CODIGO_ENTIDAD_DESTINO;.*" "$GRUPO$DIRMA/maestro.csv") 
 		ENTIDAD_DESTINO="$(echo $ENTIDAD_DESTINO | cut -d';' -f 1 )"
 
-#		echo "-----------------"
-#		echo "FECHA: $FECHA_TRANS "
-#		echo "IMPORTE: $IMPORTE"
-#		echo "ESTADO: $ESTADO"
-#
-#		echo "CBU_ORIGEN: $CBU_ORIGEN"
-#		echo "CODIGO_ENTIDAD_ORIGEN: $CODIGO_ENTIDAD_ORIGEN"
-#		echo "ENTIDAD_ORIGEN: $ENTIDAD_ORIGEN"
-#
-#		echo "CBU_DESTINO: $CBU_DESTINO"
-#		echo "CODIGO_ENTIDAD_DESTINO: $CODIGO_ENTIDAD_DESTINO"
-#		echo "ENTIDAD_DESTINO: $ENTIDAD_DESTINO"
-#		echo "-----------------"
 
 		# Guardo registro de salida en el archivo
 		echo "$archivoVerif;$ENTIDAD_ORIGEN;$CODIGO_ENTIDAD_ORIGEN;$ENTIDAD_DESTINO;$CODIGO_ENTIDAD_DESTINO;$FECHA_TRANS;$IMPORTE;$ESTADO;$CBU_ORIGEN;$CBU_DESTINO" >> "$outputFile"
@@ -297,7 +268,9 @@ moverArchivoProcesados(){
 	archivoMov="$1"
 
 	# Valido que exista el dir de procesados
+
 	procesadosDir="$GRUPO""procesados"
+
 	if [ ! -d $procesadosDir ]; then 
 		mkdir $procesadosDir
 	fi
